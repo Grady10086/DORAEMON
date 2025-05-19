@@ -1,4 +1,4 @@
-export GEMINI_API_KEY=sk-LPDkdkU9gEXIcOuT3EsfhuTwyjLEQp4FSdCjwPvbN9RtlMXs
+export GEMINI_API_KEY=
 # 修改cleanup函数
 cleanup() {
     echo "Caught interrupt signal. Cleaning up tmux sessions..."
