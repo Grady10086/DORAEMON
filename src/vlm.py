@@ -109,7 +109,6 @@ class GeminiVLM(VLM):
                 "content": system_instruction
             })
 
-        # 添加 generation_config 配置
         self.generation_config = {
             "temperature": 1,
             "top_p": 0.8,
@@ -119,7 +118,7 @@ class GeminiVLM(VLM):
         }
 
     def call_chat(self, history: int, images: list[np.array], text_prompt: str):
-        max_retries = 10000  # 最大重试次数
+        max_retries = 10000 
         retry_count = 0
         
         while retry_count < max_retries:
@@ -136,13 +135,12 @@ class GeminiVLM(VLM):
                     messages = self.conversation_history[-2*history:] + [current_message]
                 else:
                     messages = [current_message]
-                
-                # 将 generation_config 添加到请求中
+
                 payload = {
                     "model": self.name,
                     "messages": messages,
                     "stream": False,
-                    "generation_config": self.generation_config  # 添加配置
+                    "generation_config": self.generation_config 
                 }
                 
                 response = requests.post(
@@ -173,45 +171,34 @@ class GeminiVLM(VLM):
                 retry_count += 1
                 if retry_count == max_retries:
                     return "API ERROR"
-                time.sleep(0.5)  # 添加短暂延迟后重试
+                time.sleep(0.5)  
                     
             except Exception as e:
                 logging.error(f"API ERROR (Attempt {retry_count + 1}/{max_retries}): {e}")
                 retry_count += 1
                 if retry_count == max_retries:
                     return "API ERROR"
-                time.sleep(1)  # 添加短暂延迟后重试
+                time.sleep(1)
 
     def _convert_images_to_base64(self, images):
-        """图像转换函数，避免不必要的转置"""
         content = []
         for i, image in enumerate(images):
             try:
                 if image is None:
                     logging.warning(f"Skipping None image at index {i}")
                     continue
-                    
-                # 记录原始信息
-                # logging.info(f"Original image {i}: shape={image.shape}, dtype={image.dtype}")
-                
-                # 检查维度 - 但不要基于尺寸大小比较来转置
+
                 if len(image.shape) == 2:
-                    # 如果是2D灰度图像，转为3通道
                     image = np.stack([image] * 3, axis=2)
                 elif len(image.shape) == 3 and image.shape[2] != 3:
-                    # 如果通道数不是3，取前3个通道
                     image = image[:, :, :3]
-                
-                # 确保数据类型正确
+
                 if image.dtype != np.uint8:
                     image = (image * 255).astype(np.uint8)
                     
                 # logging.info(f"Final image {i} shape: {image.shape}")
-                
-                # 转换为PIL图像
+
                 pil_image = Image.fromarray(image)
-                
-                # 转换为base64
                 buffered = io.BytesIO()
                 pil_image.save(buffered, format="JPEG")
                 img_str = base64.b64encode(buffered.getvalue()).decode()
@@ -227,7 +214,6 @@ class GeminiVLM(VLM):
                             f"dtype={image.dtype if image is not None else 'None'}")
                 
         return content
-
 
     def call(self, images: list[np.array], text_prompt: str):
         return self.call_chat(0, images, text_prompt)
