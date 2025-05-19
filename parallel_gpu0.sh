@@ -1,5 +1,5 @@
 #!/bin/bash
-export GEMINI_API_KEY=sk-LPDkdkU9gEXIcOuT3EsfhuTwyjLEQp4FSdCjwPvbN9RtlMXs
+export GEMINI_API_KEY=
 
 # Configuration Variables
 NUM_GPU=4
