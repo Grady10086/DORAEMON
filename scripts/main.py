@@ -4,25 +4,14 @@ import sys
 import os
 import traceback
 from dotenv import load_dotenv
-# 将 src 目录添加到 Python 路径
-current_dir = os.path.dirname(os.path.abspath(__file__))  # 获取 scripts 目录
-project_root = os.path.dirname(current_dir)  # 获取项目根目录
-src_path = os.path.join(project_root, 'src')  # 获取 src 目录路径
-sys.path.insert(0, src_path)  # 添加到 Python 路径
+current_dir = os.path.dirname(os.path.abspath(__file__)) 
+project_root = os.path.dirname(current_dir) 
+src_path = os.path.join(project_root, 'src') 
+sys.path.insert(0, src_path)  
 
 from agent import *
 from vlm import *
 from env import *
-
-
-
-"""# 确保只使用 GPU 2
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
-
-# 检查当前使用的 GPU
-print('CUDA_VISIBLE_DEVICES:', os.environ.get('CUDA_VISIBLE_DEVICES'))
-print('Current device:', torch.cuda.current_device())
-print('Device name:', torch.cuda.get_device_name(torch.cuda.current_device()"""
 load_dotenv()
 
 def main():
@@ -44,7 +33,6 @@ def main():
 
     args = parser.parse_args()
 
-    # 检查已完成的实例
     log_dir = f"logs/ObjectNav_{args.name}"
     completed_instances = set()
     if os.path.exists(log_dir):
@@ -53,7 +41,6 @@ def main():
                 instance_num = int(filename.split('_of_')[0])
                 completed_instances.add(instance_num)
     
-    # 打印进度信息
     print(f"Found {len(completed_instances)} completed instances")
     print(f"Starting from instance {args.start_from}")
     print(f"Target total instances: {args.total_instances}")
@@ -78,8 +65,7 @@ def main():
         config['env_cfg']['port'] = args.port
     if args.parallel:
         config['env_cfg']['parallel'] = True
-
-    # 添加断点续跑相关配置
+        
     config['env_cfg']['start_from'] = args.start_from
     config['env_cfg']['total_instances'] = args.total_instances
     config['env_cfg']['completed_instances'] = completed_instances
