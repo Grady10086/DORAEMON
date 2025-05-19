@@ -1,0 +1,1419 @@
+import logging
+import math
+import random
+import ast
+import concurrent.futures
+
+import numpy as np
+import re
+import cv2
+
+import habitat_sim
+
+from simWrapper import PolarAction
+from utils import *
+from vlm import *
+from pivot import PIVOT
+from sentence_transformers import SentenceTransformer, util  # 添加这一行
+from scipy.cluster.hierarchy import linkage, fcluster
+from scipy.spatial import distance
+import time
+
+class Agent:
+    def __init__(self, cfg: dict):
+        pass
+
+    def step(self, obs: dict):
+        """Primary agent loop to map observations to the agent's action and returns metadata."""
+        raise NotImplementedError
+
+    def get_spend(self):
+        """Returns the dollar amount spent by the agent on API calls."""
+        return 0
+
+    def reset(self):
+        """To be called after each episode."""
+        pass
+
+
+class RandomAgent(Agent):
+    """Example implementation of a random agent."""
+    
+    def step(self, obs):
+        rotate = random.uniform(-0.2, 0.2)
+        forward = random.uniform(0, 1)
+
+        agent_action = PolarAction(forward, rotate)
+        metadata = {
+            'step_metadata': {'success': 1}, # indicating the VLM succesfully selected an action
+            'logging_data': {}, # to be logged in the txt file
+            'images': {'color_sensor': obs['color_sensor']} # to be visualized in the GIF
+        }
+        return agent_action, metadata
+
+class TopologicalNode:
+    """拓扑地图节点，存储位姿、时间戳、图像和文本描述"""
+    def __init__(self, position, rotation, timestamp, image=None, caption=None):
+        self.position = np.array(position)
+        self.rotation = rotation
+        self.timestamp = timestamp
+        self.image = image
+        self.caption = caption
+        self.connections = []  # 与其他节点的连接
+        self.embedding = None  # 文本嵌入向量
+
+class TopologicalMap:
+    """拓扑地图实现，基于机器人路径构建连接关系"""
+    def __init__(self, distance_threshold=1.0):
+        self.nodes = []
+        self.distance_threshold = distance_threshold
+        self.last_node = None
+    
+    def add_node(self, position, rotation, timestamp, image=None, caption=None):
+        """添加新节点到地图并建立连接"""
+        new_node = TopologicalNode(position, rotation, timestamp, image, caption)
+        
+        # 将新节点添加到地图
+        self.nodes.append(new_node)
+        
+        # 如果有前一个节点，建立连接
+        if self.last_node:
+            dist = np.linalg.norm(new_node.position - self.last_node.position)
+            if dist < self.distance_threshold:
+                self.last_node.connections.append(len(self.nodes) - 1)
+                new_node.connections.append(len(self.nodes) - 2)
+        
+        self.last_node = new_node
+        return len(self.nodes) - 1  # 返回节点索引
+
+    def get_node(self, index):
+        """获取指定索引的节点"""
+        if 0 <= index < len(self.nodes):
+            return self.nodes[index]
+        return None
+
+
+class SemanticForest:
+    """语义森林实现，使用层次聚类组织记忆节点"""
+    def __init__(self, spatial_weight=0.4):
+        self.nodes = []  # 底层节点
+        self.levels = {}  # 不同级别的节点
+        self.spatial_weight = spatial_weight  # 空间相似度权重
+        self.last_update_time = 0
+        self.update_interval = 5.0  # 更新间隔（秒）
+    
+    def add_node(self, node_data):
+        """添加节点到森林"""
+        # 添加到底层节点
+        node_id = len(self.nodes)
+        node = {
+            'id': node_id,
+            'level': 0,
+            'position': node_data['position'],
+            'caption': node_data['caption'],
+            'timestamp': node_data['timestamp'],
+            'embedding': node_data.get('embedding', None),
+            'image': node_data.get('image', None)
+        }
+        self.nodes.append(node)
+        
+        # 如果节点足够多且达到更新时间，重建层次结构
+        current_time = time.time()
+        if len(self.nodes) > 10 and (current_time - self.last_update_time) > self.update_interval:
+            self._update_hierarchy()
+            self.last_update_time = current_time
+            
+        return node_id
+    
+    def _update_hierarchy(self):
+        """使用CLINK算法更新层次结构"""
+        if len(self.nodes) < 2:
+            return
+            
+        try:
+            # 提取位置和文本嵌入
+            positions = np.array([node['position'] for node in self.nodes])
+            
+            # 计算空间距离矩阵
+            spatial_dist = distance.pdist(positions, 'euclidean')
+            
+            # 计算语义距离矩阵（如果有嵌入）
+            semantic_dist = np.zeros_like(spatial_dist)
+            has_embeddings = all(node.get('embedding') is not None for node in self.nodes)
+            
+            if has_embeddings:
+                embeddings = np.array([node['embedding'] for node in self.nodes])
+                # 计算余弦距离 (1 - 余弦相似度)
+                semantic_dist = distance.pdist(embeddings, 'cosine')
+            
+            # 组合距离矩阵
+            w = self.spatial_weight
+            combined_dist = w * spatial_dist + (1-w) * semantic_dist
+            
+            # 执行层次聚类
+            Z = linkage(combined_dist, method='complete')
+            
+            # 生成不同阈值的聚类
+            self.levels = {0: self.nodes.copy()}  # 级别0是原始节点
+            
+            max_level = 3  # 最大层级
+            for level in range(1, max_level + 1):
+                threshold = 0.5 * level  # 根据级别调整阈值
+                clusters = fcluster(Z, threshold, criterion='distance')
+                
+                # 为每个聚类创建一个代表节点
+                cluster_nodes = {}
+                for i, cluster_id in enumerate(clusters):
+                    if cluster_id not in cluster_nodes:
+                        # 选择聚类中的第一个节点作为代表
+                        node = self.nodes[i]
+                        cluster_nodes[cluster_id] = {
+                            'id': len(self.nodes) + cluster_id,
+                            'level': level,
+                            'position': node['position'].copy(),
+                            'caption': f"Level {level} cluster with {clusters.tolist().count(cluster_id)} nodes",
+                            'members': [],
+                            'timestamp': node['timestamp']
+                        }
+                    
+                    # 添加成员
+                    cluster_nodes[cluster_id]['members'].append(i)
+                
+                # 更新层级节点
+                self.levels[level] = list(cluster_nodes.values())
+                
+        except Exception as e:
+            logging.error(f"Error updating hierarchy: {e}")
+    
+    def retrieve(self, query, current_pos=None, text_encoder=None, top_k=5):
+        """两阶段检索过程"""
+        if not self.nodes:
+            return []
+            
+        try:
+            # 生成查询嵌入
+            query_embedding = None
+            if text_encoder:
+                query_embedding = text_encoder.encode(query, show_progress_bar=False)
+            
+            # 阶段1：层次遍历
+            max_level = max(self.levels.keys())
+            candidates = []
+            
+            if max_level > 0 and query_embedding is not None:
+                # 从顶层开始遍历
+                current_level = max_level
+                current_nodes = self.levels[current_level]
+                
+                while current_level > 0:
+                    # 对当前层节点评分
+                    scored_nodes = []
+                    for node in current_nodes:
+                        # 计算语义相似度
+                        semantic_score = 0
+                        if 'caption' in node:
+                            node_embedding = text_encoder.encode(node['caption'], show_progress_bar=False)
+                            semantic_score = np.dot(query_embedding, node_embedding) / (
+                                np.linalg.norm(query_embedding) * np.linalg.norm(node_embedding))
+                        
+                        # 计算空间接近度
+                        spatial_score = 0
+                        if current_pos is not None:
+                            dist = np.linalg.norm(np.array(current_pos) - np.array(node['position']))
+                            spatial_score = 1.0 / (1.0 + dist)
+                        
+                        # 计算总分
+                        total_score = (1-self.spatial_weight) * semantic_score + self.spatial_weight * spatial_score
+                        scored_nodes.append((node, total_score))
+                    
+                    # 选择得分最高的K个节点
+                    scored_nodes.sort(key=lambda x: x[1], reverse=True)
+                    selected_nodes = [n for n, _ in scored_nodes[:3]]  # 分支因子为3
+                    
+                    # 如果到达底层，这些就是最终候选
+                    if current_level == 1:
+                        # 收集所有成员节点
+                        for node in selected_nodes:
+                            if 'members' in node:
+                                for member_idx in node['members']:
+                                    candidates.append(self.nodes[member_idx])
+                    
+                    # 否则，移到下一层
+                    current_level -= 1
+                    next_nodes = []
+                    for node in selected_nodes:
+                        if 'members' in node:
+                            # 找到所有成员在下一级的聚类
+                            member_clusters = set()
+                            for member_idx in node['members']:
+                                # 在下一级找到包含这个成员的聚类
+                                for cluster in self.levels.get(current_level, []):
+                                    if 'members' in cluster and member_idx in cluster['members']:
+                                        member_clusters.add(cluster['id'])
+                            
+                            # 添加找到的聚类
+                            for cluster in self.levels.get(current_level, []):
+                                if cluster['id'] in member_clusters:
+                                    next_nodes.append(cluster)
+                    
+                    current_nodes = next_nodes
+            else:
+                # 如果没有层次结构，使用所有底层节点
+                candidates = self.nodes
+            
+            # 阶段2：混合重排序
+            if not candidates:
+                candidates = self.nodes  # 备选方案
+                
+            # 重新计算所有候选节点得分
+            scored_candidates = []
+            for node in candidates:
+                # 语义评分
+                semantic_score = 0
+                if query_embedding is not None and 'caption' in node:
+                    try:
+                        node_embedding = text_encoder.encode(node['caption'], show_progress_bar=False)
+                        semantic_score = np.dot(query_embedding, node_embedding) / (
+                            np.linalg.norm(query_embedding) * np.linalg.norm(node_embedding))
+                    except:
+                        pass
+                        
+                # 空间评分
+                spatial_score = 0
+                if current_pos is not None:
+                    dist = np.linalg.norm(np.array(current_pos) - np.array(node['position']))
+                    spatial_score = 1.0 / (1.0 + dist)
+                
+                # 总分
+                total_score = (1-self.spatial_weight) * semantic_score + self.spatial_weight * spatial_score
+                scored_candidates.append((node, total_score))
+            
+            # 按得分排序并返回前K个
+            scored_candidates.sort(key=lambda x: x[1], reverse=True)
+            return [node for node, _ in scored_candidates[:top_k]]
+            
+        except Exception as e:
+            logging.error(f"Error in retrieval: {e}")
+            return self.nodes[:min(top_k, len(self.nodes))]  # 出错时返回前K个节点
+            
+class VLMNavAgent(Agent):
+    """
+    Primary class for the VLMNav agent. Four primary components: navigability, action proposer, projection, and prompting. Runs seperate threads for stopping and preprocessing. This class steps by taking in an observation and returning a PolarAction, along with metadata for logging and visulization.
+    """
+    explored_color = GREY
+    unexplored_color = GREEN
+    map_size = 5000
+    explore_threshold = 3
+    voxel_ray_size = 60
+    e_i_scaling = 0.8
+
+    def __init__(self, cfg: dict):
+        self.cfg = cfg
+        self.fov = cfg['sensor_cfg']['fov']
+        self.resolution = (
+            1080 // cfg['sensor_cfg']['res_factor'],
+            1920 // cfg['sensor_cfg']['res_factor']
+        )
+
+        self.focal_length = calculate_focal_length(self.fov, self.resolution[1])
+        self.scale = cfg['map_scale']
+        self._initialize_vlms(cfg['vlm_cfg'])       
+        self.pivot = PIVOT(self.actionVLM, self.fov, self.resolution, max_action_length=cfg['max_action_dist']) if cfg['pivot'] else None
+
+        assert cfg['navigability_mode'] in ['none', 'depth_estimate', 'segmentation', 'depth_sensor']
+        self.depth_estimator = DepthEstimator() if cfg['navigability_mode'] == 'depth_estimate' else None
+        self.segmentor = Segmentor() if cfg['navigability_mode'] == 'segmentation' else None
+        self.reset()
+
+    def step(self, obs: dict):
+        agent_state: habitat_sim.AgentState = obs['agent_state']
+        if self.step_ndx == 0:
+            self.init_pos = agent_state.position
+
+        agent_action, metadata = self._choose_action(obs)
+        metadata['step_metadata'].update(self.cfg)
+
+        if metadata['step_metadata']['action_number'] == 0:
+            self.turned = self.step_ndx
+
+        # Visualize the chosen action
+        chosen_action_image = obs['color_sensor'].copy()
+        self._project_onto_image(
+            metadata['a_final'], chosen_action_image, agent_state,
+            agent_state.sensor_states['color_sensor'], 
+            chosen_action=metadata['step_metadata']['action_number']
+        )
+        metadata['images']['color_sensor_chosen'] = chosen_action_image
+
+        self.step_ndx += 1
+        return agent_action, metadata
+    
+    def get_spend(self):
+        return self.actionVLM.get_spend() + self.stoppingVLM.get_spend()
+
+    def reset(self):
+        self.voxel_map = np.zeros((self.map_size, self.map_size, 3), dtype=np.uint8)
+        self.explored_map = np.zeros((self.map_size, self.map_size, 3), dtype=np.uint8)
+        self.stopping_calls = [-2]
+        self.step_ndx = 0
+        self.init_pos = None
+        self.turned = -self.cfg['turn_around_cooldown']
+        self.actionVLM.reset()
+
+    def _construct_prompt(self, **kwargs):
+        raise NotImplementedError
+    
+    def _choose_action(self, obs):
+        raise NotImplementedError
+
+    def _initialize_vlms(self, cfg: dict):
+        vlm_cls = globals()[cfg['model_cls']]
+        system_instruction = (
+            "You are an embodied robotic assistant, with an RGB image sensor. You observe the image and instructions "
+            "given to you and output a textual response, which is converted into actions that physically move you "
+            "within the environment. You cannot move through closed doors. "
+        )
+        self.actionVLM: VLM = vlm_cls(**cfg['model_kwargs'], system_instruction=system_instruction)
+        self.stoppingVLM: VLM = vlm_cls(**cfg['model_kwargs'])
+
+    def _run_threads(self, obs: dict, stopping_images: list[np.array], goal):
+        """Concurrently runs the stopping thread to determine if the agent should stop, and the preprocessing thread to calculate potential actions."""
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            preprocessing_thread = executor.submit(self._preprocessing_module, obs)
+            stopping_thread = executor.submit(self._stopping_module, stopping_images, goal)
+
+            a_final, images = preprocessing_thread.result()
+            called_stop, stopping_response = stopping_thread.result()
+        
+        if called_stop:
+            logging.info('Model called stop')
+            self.stopping_calls.append(self.step_ndx)
+            # If the model calls stop, turn off navigability and explore bias tricks
+            if self.cfg['navigability_mode'] != 'none' and self.cfg['project']:
+                new_image = obs['color_sensor'].copy()
+                a_final = self._project_onto_image(
+                    self._get_default_arrows(), new_image, obs['agent_state'],
+                    obs['agent_state'].sensor_states['color_sensor']
+                )
+                images['color_sensor'] = new_image
+
+        step_metadata = {
+            'action_number': -10,
+            'success': 1,
+            'pivot': 1 if self.pivot is not None else 0,
+            'model': self.actionVLM.name,
+            'agent_location': obs['agent_state'].position,
+            'called_stopping': called_stop
+        }
+        return a_final, images, step_metadata, stopping_response
+
+    def _preprocessing_module(self, obs: dict):
+        """Excutes the navigability, action_proposer and projection submodules."""
+        agent_state = obs['agent_state']
+        images = {'color_sensor': obs['color_sensor'].copy()}
+        if not self.cfg['project']:
+            # Actions for the w/o proj baseline
+            a_final = {
+                (self.cfg['max_action_dist'], -0.28 * np.pi): 1,
+                (self.cfg['max_action_dist'], 0): 2,
+                (self.cfg['max_action_dist'], 0.28 * np.pi): 3,
+            }
+            return a_final, images
+
+        if self.cfg['navigability_mode'] == 'none':
+            a_final = [
+                # Actions for the w/o nav baseline
+                (self.cfg['max_action_dist'], -0.36 * np.pi),
+                (self.cfg['max_action_dist'], -0.28 * np.pi),
+                (self.cfg['max_action_dist'], 0),
+                (self.cfg['max_action_dist'], 0.28 * np.pi),
+                (self.cfg['max_action_dist'], 0.36 * np.pi)
+            ]
+        else:
+            a_initial = self._navigability(obs)
+            a_final = self._action_proposer(a_initial, agent_state)
+
+        a_final_projected = self._projection(a_final, images, agent_state)
+        images['voxel_map'] = self._generate_voxel(a_final_projected, agent_state=agent_state)
+        return a_final_projected, images
+
+    def _stopping_module(self, stopping_images: list[np.array], goal):
+        """Determines if the agent should stop."""
+        stopping_prompt = self._construct_prompt(
+            goal=goal, 
+            prompt_type='stopping'
+        )
+        stopping_response = self.stoppingVLM.call(stopping_images, stopping_prompt)
+        dct = self._eval_response(stopping_response)
+        if 'done' in dct and int(dct['done']) == 1:
+            return True, stopping_response
+        
+        return False, stopping_response
+
+    def _navigability(self, obs: dict):
+        """Generates the set of navigability actions and updates the voxel map accordingly."""
+        agent_state: habitat_sim.AgentState = obs['agent_state']
+        sensor_state = agent_state.sensor_states['color_sensor']
+        rgb_image = obs['color_sensor']
+        depth_image = obs[f'depth_sensor']
+        if self.cfg['navigability_mode'] == 'depth_estimate':
+            depth_image = self.depth_estimator.call(rgb_image)
+        if self.cfg['navigability_mode'] == 'segmentation':
+            depth_image = None
+
+        navigability_mask = self._get_navigability_mask(
+            rgb_image, depth_image, agent_state, sensor_state
+        )
+
+        sensor_range =  np.deg2rad(self.fov / 2) * 1.5
+
+        all_thetas = np.linspace(-sensor_range, sensor_range, self.cfg['num_theta'])
+        start = agent_frame_to_image_coords(
+            [0, 0, 0], agent_state, sensor_state,
+            resolution=self.resolution, focal_length=self.focal_length
+        )
+
+        a_initial = []
+        for theta_i in all_thetas:
+            r_i, theta_i = self._get_radial_distance(start, theta_i, navigability_mask, agent_state, sensor_state, depth_image)
+            if r_i is not None:
+                self._update_voxel(
+                    r_i, theta_i, agent_state,
+                    clip_dist=self.cfg['max_action_dist'], clip_frac=self.e_i_scaling
+                )
+                a_initial.append((r_i, theta_i))
+
+        return a_initial
+
+    def _action_proposer(self, a_initial: list, agent_state: habitat_sim.AgentState):
+        """Refines the initial set of actions, ensuring spacing and adding a bias towards exploration."""
+        min_angle = self.fov/self.cfg['spacing_ratio']
+        explore_bias = self.cfg['explore_bias']
+        clip_frac = self.cfg['clip_frac']
+        clip_mag = self.cfg['max_action_dist']
+
+        explore = explore_bias > 0
+        unique = {}
+        for mag, theta in a_initial:
+            if theta in unique:
+                unique[theta].append(mag)
+            else:
+                unique[theta] = [mag]
+        arrowData = []
+
+        topdown_map = self.voxel_map.copy()
+        mask = np.all(self.explored_map == self.explored_color, axis=-1)
+        topdown_map[mask] = self.explored_color
+        for theta, mags in unique.items():
+            # Reference the map to classify actions as explored or unexplored
+            mag = min(mags)
+            cart = [self.e_i_scaling*mag*np.sin(theta), 0, -self.e_i_scaling*mag*np.cos(theta)]
+            global_coords = local_to_global(agent_state.position, agent_state.rotation, cart)
+            grid_coords = self._global_to_grid(global_coords)
+            score = (sum(np.all((topdown_map[grid_coords[1]-2:grid_coords[1]+2, grid_coords[0]] == self.explored_color), axis=-1)) + 
+                    sum(np.all(topdown_map[grid_coords[1], grid_coords[0]-2:grid_coords[0]+2] == self.explored_color, axis=-1)))
+            arrowData.append([clip_frac*mag, theta, score<3])
+
+        arrowData.sort(key=lambda x: x[1])
+        thetas = set()
+        out = []
+        filter_thresh = 0.75
+        filtered = list(filter(lambda x: x[0] > filter_thresh, arrowData))
+
+        filtered.sort(key=lambda x: x[1])
+        if filtered == []:
+            return []
+        if explore:
+            # Add unexplored actions with spacing, starting with the longest one
+            f = list(filter(lambda x: x[2], filtered))
+            if len(f) > 0:
+                longest = max(f, key=lambda x: x[0])
+                longest_theta = longest[1]
+                smallest_theta = longest[1]
+                longest_ndx = f.index(longest)
+            
+                out.append([min(longest[0], clip_mag), longest[1], longest[2]])
+                thetas.add(longest[1])
+                for i in range(longest_ndx+1, len(f)):
+                    if f[i][1] - longest_theta > (min_angle*0.9):
+                        out.append([min(f[i][0], clip_mag), f[i][1], f[i][2]])
+                        thetas.add(f[i][1])
+                        longest_theta = f[i][1]
+                for i in range(longest_ndx-1, -1, -1):
+                    if smallest_theta - f[i][1] > (min_angle*0.9):
+                        
+                        out.append([min(f[i][0], clip_mag), f[i][1], f[i][2]])
+                        thetas.add(f[i][1])
+                        smallest_theta = f[i][1]
+
+                for r_i, theta_i, e_i in filtered:
+                    if theta_i not in thetas and min([abs(theta_i - t) for t in thetas]) > min_angle*explore_bias:
+                        out.append((min(r_i, clip_mag), theta_i, e_i))
+                        thetas.add(theta)
+
+        if len(out) == 0:
+            # if no explored actions or no explore bias
+            longest = max(filtered, key=lambda x: x[0])
+            longest_theta = longest[1]
+            smallest_theta = longest[1]
+            longest_ndx = filtered.index(longest)
+            out.append([min(longest[0], clip_mag), longest[1], longest[2]])
+            
+            for i in range(longest_ndx+1, len(filtered)):
+                if filtered[i][1] - longest_theta > min_angle:
+                    out.append([min(filtered[i][0], clip_mag), filtered[i][1], filtered[i][2]])
+                    longest_theta = filtered[i][1]
+            for i in range(longest_ndx-1, -1, -1):
+                if smallest_theta - filtered[i][1] > min_angle:
+                    out.append([min(filtered[i][0], clip_mag), filtered[i][1], filtered[i][2]])
+                    smallest_theta = filtered[i][1]
+
+
+        if (out == [] or max(out, key=lambda x: x[0])[0] < self.cfg['min_action_dist']) and (self.step_ndx - self.turned) < self.cfg['turn_around_cooldown']:
+            return self._get_default_arrows()
+        
+        out.sort(key=lambda x: x[1])
+        return [(mag, theta) for mag, theta, _ in out]
+
+    def _projection(self, a_final: list, images: dict, agent_state: habitat_sim.AgentState):
+        """
+        Projection component of VLMnav. Projects the arrows onto the image, annotating them with action numbers.
+        Note actions that are too close together or too close to the boundaries of the image will not get projected.
+        """
+        a_final_projected = self._project_onto_image(
+            a_final, images['color_sensor'], agent_state,
+            agent_state.sensor_states['color_sensor']
+        )
+
+        if not a_final_projected and (self.step_ndx - self.turned < self.cfg['turn_around_cooldown']):
+            logging.info('No actions projected and cannot turn around')
+            a_final = self._get_default_arrows()
+            a_final_projected = self._project_onto_image(
+                a_final, images['color_sensor'], agent_state,
+                agent_state.sensor_states['color_sensor']
+            )
+
+        return a_final_projected
+
+    def _prompting(self, goal, a_final: list, images: dict, step_metadata: dict):
+        """
+        Prompting component of VLMNav. Constructs the textual prompt and calls the action model.
+        Parses the response for the chosen action number.
+        """
+        # 将相邻物体信息添加到 action_prompt
+        prompt_type = 'action' if self.cfg['project'] else 'no_project'
+        action_prompt = self._construct_prompt(goal, prompt_type, num_actions=len(a_final))
+
+        prompt_images = [images['color_sensor']]
+        if 'goal_image' in images:
+            prompt_images.append(images['goal_image'])
+        
+        response = self.actionVLM.call_chat(self.cfg['context_history'], prompt_images, action_prompt)
+
+        logging_data = {}
+        try:
+            response_dict = self._eval_response(response)
+            step_metadata['action_number'] = int(response_dict['action'])
+        except (IndexError, KeyError, TypeError, ValueError) as e:
+            logging.error(f'Error parsing response {e}')
+            step_metadata['success'] = 0
+        finally:
+            logging_data['ACTION_NUMBER'] = step_metadata.get('action_number')
+            logging_data['PROMPT'] = action_prompt
+            logging_data['RESPONSE'] = response
+
+        return step_metadata, logging_data, response
+
+    def _get_navigability_mask(self, rgb_image: np.array, depth_image: np.array, agent_state: habitat_sim.AgentState, sensor_state: habitat_sim.SixDOFPose):
+        """
+        Get the navigability mask for the current state, according to the configured navigability mode.
+        """
+        if self.cfg['navigability_mode'] == 'segmentation':
+            navigability_mask = self.segmentor.get_navigability_mask(rgb_image)
+        else:
+            thresh = 1 if self.cfg['navigability_mode'] == 'depth_estimate' else self.cfg['navigability_height_threshold']
+            height_map = depth_to_height(depth_image, self.fov, sensor_state.position, sensor_state.rotation)
+            navigability_mask = abs(height_map - (agent_state.position[1] - 0.04)) < thresh
+
+        return navigability_mask
+
+    def _get_default_arrows(self):
+        """
+        Get the action options for when the agent calls stop the first time, or when no navigable actions are found.
+        """
+        angle = np.deg2rad(self.fov / 2) * 0.7
+        
+        default_actions = [
+            (self.cfg['stopping_action_dist'], -angle),
+            (self.cfg['stopping_action_dist'], -angle / 4),
+            (self.cfg['stopping_action_dist'], angle / 4),
+            (self.cfg['stopping_action_dist'], angle)
+        ]
+        
+        default_actions.sort(key=lambda x: x[1])
+        return default_actions
+
+    def _get_radial_distance(self, start_pxl: tuple, theta_i: float, navigability_mask: np.ndarray, 
+                             agent_state: habitat_sim.AgentState, sensor_state: habitat_sim.SixDOFPose, 
+                             depth_image: np.ndarray):
+        """
+        Calculates the distance r_i that the agent can move in the direction theta_i, according to the navigability mask.
+        """
+        agent_point = [2 * np.sin(theta_i), 0, -2 * np.cos(theta_i)]
+        end_pxl = agent_frame_to_image_coords(
+            agent_point, agent_state, sensor_state, 
+            resolution=self.resolution, focal_length=self.focal_length
+        )
+        if end_pxl is None or end_pxl[1] >= self.resolution[0]:
+            return None, None
+
+        H, W = navigability_mask.shape
+
+        # Find intersections of the theoretical line with the image boundaries
+        intersections = find_intersections(start_pxl[0], start_pxl[1], end_pxl[0], end_pxl[1], W, H)
+        if intersections is None:
+            return None, None
+
+        (x1, y1), (x2, y2) = intersections
+        num_points = max(abs(x2 - x1), abs(y2 - y1)) + 1
+        x_coords = np.linspace(x1, x2, num_points)
+        y_coords = np.linspace(y1, y2, num_points)
+
+        out = (int(x_coords[-1]), int(y_coords[-1]))
+        if not navigability_mask[int(y_coords[0]), int(x_coords[0])]:
+            return 0, theta_i
+
+        for i in range(num_points - 4):
+            # Trace pixels until they are not navigable
+            y = int(y_coords[i])
+            x = int(x_coords[i])
+            if sum([navigability_mask[int(y_coords[j]), int(x_coords[j])] for j in range(i, i + 4)]) <= 2:
+                out = (x, y)
+                break
+
+        if i < 5:
+            return 0, theta_i
+
+        if self.cfg['navigability_mode'] == 'segmentation':
+            #Simple estimation of distance based on number of pixels
+            r_i = 0.0794 * np.exp(0.006590 * i) + 0.616
+
+        else:
+            #use depth to get distance
+            out = (np.clip(out[0], 0, W - 1), np.clip(out[1], 0, H - 1))
+            camera_coords = unproject_2d(
+                *out, depth_image[out[1], out[0]], resolution=self.resolution, focal_length=self.focal_length
+            )
+            local_coords = global_to_local(
+                agent_state.position, agent_state.rotation,
+                local_to_global(sensor_state.position, sensor_state.rotation, camera_coords)
+            )
+            r_i = np.linalg.norm([local_coords[0], local_coords[2]])
+
+        return r_i, theta_i
+
+    def _can_project(self, r_i: float, theta_i: float, agent_state: habitat_sim.AgentState, sensor_state: habitat_sim.SixDOFPose):
+        """
+        Checks whether the specified polar action can be projected onto the image, i.e., not too close to the boundaries of the image.
+        """
+        agent_point = [r_i * np.sin(theta_i), 0, -r_i * np.cos(theta_i)]
+        end_px = agent_frame_to_image_coords(
+            agent_point, agent_state, sensor_state, 
+            resolution=self.resolution, focal_length=self.focal_length
+        )
+        if end_px is None:
+            return None
+
+        if (
+            self.cfg['image_edge_threshold'] * self.resolution[1] <= end_px[0] <= (1 - self.cfg['image_edge_threshold']) * self.resolution[1] and
+            self.cfg['image_edge_threshold'] * self.resolution[0] <= end_px[1] <= (1 - self.cfg['image_edge_threshold']) * self.resolution[0]
+        ):
+            return end_px
+        return None
+
+    def _project_onto_image(self, a_final: list, rgb_image: np.ndarray, agent_state: habitat_sim.AgentState, sensor_state: habitat_sim.SixDOFPose, chosen_action: int=None):
+        """
+        Projects a set of actions onto a single image. Keeps track of action-to-number mapping.
+        """
+        scale_factor = rgb_image.shape[0] / 1080
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        text_color = BLACK
+        circle_color = WHITE
+        projected = {}
+        if chosen_action == -1:
+            put_text_on_image(
+                rgb_image, 'TERMINATING EPISODE', text_color=GREEN, text_size=4 * scale_factor,
+                location='center', text_thickness=math.ceil(3 * scale_factor), highlight=False
+            )
+            return projected
+
+        start_px = agent_frame_to_image_coords(
+            [0, 0, 0], agent_state, sensor_state, 
+            resolution=self.resolution, focal_length=self.focal_length
+        )
+        for _, (r_i, theta_i) in enumerate(a_final):
+            text_size = 2.4 * scale_factor
+            text_thickness = math.ceil(3 * scale_factor)
+
+            end_px = self._can_project(r_i, theta_i, agent_state, sensor_state)
+            if end_px is not None:
+                action_name = len(projected) + 1
+                projected[(r_i, theta_i)] = action_name
+
+                cv2.arrowedLine(rgb_image, tuple(start_px), tuple(end_px), RED, math.ceil(5 * scale_factor), tipLength=0.0)
+                text = str(action_name)
+                (text_width, text_height), _ = cv2.getTextSize(text, font, text_size, text_thickness)
+                circle_center = (end_px[0], end_px[1])
+                circle_radius = max(text_width, text_height) // 2 + math.ceil(15 * scale_factor)
+
+                if chosen_action is not None and action_name == chosen_action:
+                    cv2.circle(rgb_image, circle_center, circle_radius, GREEN, -1)
+                else:
+                    cv2.circle(rgb_image, circle_center, circle_radius, circle_color, -1)
+                cv2.circle(rgb_image, circle_center, circle_radius, RED, math.ceil(2 * scale_factor))
+                text_position = (circle_center[0] - text_width // 2, circle_center[1] + text_height // 2)
+                cv2.putText(rgb_image, text, text_position, font, text_size, text_color, text_thickness)
+
+        if (self.step_ndx - self.turned) >= self.cfg['turn_around_cooldown'] or self.step_ndx == self.turned or (chosen_action == 0):
+            text = '0'
+            text_size = 3.1 * scale_factor
+            text_thickness = math.ceil(3 * scale_factor)
+            (text_width, text_height), _ = cv2.getTextSize(text, font, text_size, text_thickness)
+            circle_center = (math.ceil(0.05 * rgb_image.shape[1]), math.ceil(rgb_image.shape[0] / 2))
+            circle_radius = max(text_width, text_height) // 2 + math.ceil(15 * scale_factor)
+
+            if chosen_action is not None and chosen_action == 0:
+                cv2.circle(rgb_image, circle_center, circle_radius, GREEN, -1)
+            else:
+                cv2.circle(rgb_image, circle_center, circle_radius, circle_color, -1)
+            cv2.circle(rgb_image, circle_center, circle_radius, RED, math.ceil(2 * scale_factor))
+            text_position = (circle_center[0] - text_width // 2, circle_center[1] + text_height // 2)
+            cv2.putText(rgb_image, text, text_position, font, text_size, text_color, text_thickness)
+            cv2.putText(rgb_image, 'TURN AROUND', (text_position[0] // 2, text_position[1] + math.ceil(80 * scale_factor)), font, text_size * 0.75, RED, text_thickness)
+
+        return projected
+
+
+    def _update_voxel(self, r: float, theta: float, agent_state: habitat_sim.AgentState, clip_dist: float, clip_frac: float):
+        """Update the voxel map to mark actions as explored or unexplored"""
+        agent_coords = self._global_to_grid(agent_state.position)
+
+        # Mark unexplored regions
+        unclipped = max(r - 0.5, 0)
+        local_coords = np.array([unclipped * np.sin(theta), 0, -unclipped * np.cos(theta)])
+        global_coords = local_to_global(agent_state.position, agent_state.rotation, local_coords)
+        point = self._global_to_grid(global_coords)
+        cv2.line(self.voxel_map, agent_coords, point, self.unexplored_color, self.voxel_ray_size)
+
+        # Mark explored regions
+        clipped = min(clip_frac * r, clip_dist)
+        local_coords = np.array([clipped * np.sin(theta), 0, -clipped * np.cos(theta)])
+        global_coords = local_to_global(agent_state.position, agent_state.rotation, local_coords)
+        point = self._global_to_grid(global_coords)
+        cv2.line(self.explored_map, agent_coords, point, self.explored_color, self.voxel_ray_size)
+
+    def _global_to_grid(self, position: np.ndarray, rotation=None):
+        """Convert global coordinates to grid coordinates in the agent's voxel map"""
+        dx = position[0] - self.init_pos[0]
+        dz = position[2] - self.init_pos[2]
+        resolution = self.voxel_map.shape
+        x = int(resolution[1] // 2 + dx * self.scale)
+        y = int(resolution[0] // 2 + dz * self.scale)
+
+        if rotation is not None:
+            original_coords = np.array([x, y, 1])
+            new_coords = np.dot(rotation, original_coords)
+            new_x, new_y = new_coords[0], new_coords[1]
+            return (int(new_x), int(new_y))
+
+        return (x, y)
+
+    def _generate_voxel(self, a_final: dict, zoom: int=9, agent_state: habitat_sim.AgentState=None, chosen_action: int=None):
+        """For visualization purposes, add the agent's position and actions onto the voxel map"""
+        agent_coords = self._global_to_grid(agent_state.position)
+        right = (agent_state.position[0] + zoom, 0, agent_state.position[2])
+        right_coords = self._global_to_grid(right)
+        delta = abs(agent_coords[0] - right_coords[0])
+
+        topdown_map = self.voxel_map.copy()
+        mask = np.all(self.explored_map == self.explored_color, axis=-1)
+        topdown_map[mask] = self.explored_color
+
+        text_size = 1.25
+        text_thickness = 1
+        rotation_matrix = None
+        agent_coords = self._global_to_grid(agent_state.position, rotation=rotation_matrix)
+        x, y = agent_coords
+        font = cv2.FONT_HERSHEY_SIMPLEX
+
+        if self.step_ndx - self.turned >= self.cfg['turn_around_cooldown']:
+            a_final[(0.75, np.pi)] = 0
+
+        for (r, theta), action in a_final.items():
+            local_pt = np.array([r * np.sin(theta), 0, -r * np.cos(theta)])
+            global_pt = local_to_global(agent_state.position, agent_state.rotation, local_pt)
+            act_coords = self._global_to_grid(global_pt, rotation=rotation_matrix)
+
+            # Draw action arrows and labels
+            cv2.arrowedLine(topdown_map, tuple(agent_coords), tuple(act_coords), RED, 5, tipLength=0.05)
+            text = str(action)
+            (text_width, text_height), _ = cv2.getTextSize(text, font, text_size, text_thickness)
+            circle_center = (act_coords[0], act_coords[1])
+            circle_radius = max(text_width, text_height) // 2 + 15
+
+            if chosen_action is not None and action == chosen_action:
+                cv2.circle(topdown_map, circle_center, circle_radius, GREEN, -1)
+            else:
+                cv2.circle(topdown_map, circle_center, circle_radius, WHITE, -1)
+
+            text_position = (circle_center[0] - text_width // 2, circle_center[1] + text_height // 2)
+            cv2.circle(topdown_map, circle_center, circle_radius, RED, 1)
+            cv2.putText(topdown_map, text, text_position, font, text_size, RED, text_thickness + 1)
+
+        # Draw agent's current position
+        cv2.circle(topdown_map, agent_coords, radius=15, color=RED, thickness=-1)
+
+        # Zoom the map
+        max_x, max_y = topdown_map.shape[1], topdown_map.shape[0]
+        x1 = max(0, x - delta)
+        x2 = min(max_x, x + delta)
+        y1 = max(0, y - delta)
+        y2 = min(max_y, y + delta)
+
+        zoomed_map = topdown_map[y1:y2, x1:x2]
+        return zoomed_map
+
+    def _action_number_to_polar(self, action_number: int, a_final: list):
+        """Converts the chosen action number to its PolarAction instance"""
+        try:
+            action_number = int(action_number)
+            if action_number <= len(a_final) and action_number > 0:
+                r, theta = a_final[action_number - 1]
+                return PolarAction(r, -theta)
+            if action_number == 0:
+                return PolarAction(0, np.pi)
+        except ValueError:
+            pass
+
+        logging.info("Bad action number: " + str(action_number))
+        return PolarAction.default
+
+    def _eval_response(self, response):
+        """增强的响应解析函数，处理各种格式变体"""
+        try:
+            # 尝试直接解析JSON
+            try:
+                # 标准JSON格式
+                result = json.loads(response)
+                return result
+            except json.JSONDecodeError:
+                # 非标准JSON格式处理
+                pass
+                
+            # 尝试提取花括号中的内容
+            match = re.search(r'\{[^{}]*\}', response)
+            if match:
+                json_str = match.group(0).replace("'", '"')
+                try:
+                    result = json.loads(json_str)
+                    return result
+                except json.JSONDecodeError:
+                    pass
+                    
+            # 尝试提取仅包含键值对的部分
+            match = re.search(r'"?action"?\s*:\s*(\d+)', response)
+            if match:
+                action_num = int(match.group(1))
+                return {"action": action_num}
+                
+            # 尝试提取纯数字
+            match = re.search(r'(\d+)', response)
+            if match:
+                action_num = int(match.group(1))
+                return {"action": action_num}
+                
+            logging.error(f"Could not extract action from response: {response}")
+            return {"action": -10}  # 默认错误值
+            
+        except Exception as e:
+            logging.error(f"Error parsing response: {e}")
+            return {"action": -10}  # 默认错误值
+
+
+
+class GOATAgent(VLMNavAgent):
+ 
+    def _choose_action(self, obs: dict):
+        agent_state = obs['agent_state']
+        goal = obs['goal']
+
+        if goal['mode'] == 'image':
+            stopping_images = [obs['color_sensor'], goal['goal_image']]
+        else:
+            stopping_images = [obs['color_sensor']]
+
+        a_final, images, step_metadata, stopping_response = self._run_threads(obs, stopping_images, goal)
+        if goal['mode'] == 'image':
+            images['goal_image'] = goal['goal_image']
+
+        step_metadata.update({
+            'goal': goal['name'],
+            'goal_mode': goal['mode']
+        })
+
+        # If model calls stop two times in a row, we return the stop action and terminate the episode
+        if len(self.stopping_calls) >= 2 and self.stopping_calls[-2] == self.step_ndx - 1:
+            step_metadata['action_number'] = -1
+            agent_action = PolarAction.stop
+            logging_data = {}
+        else:
+            if self.pivot is not None:
+                pivot_instruction = self._construct_prompt(goal, 'pivot')
+                agent_action, pivot_images = self.pivot.run(
+                    obs['color_sensor'], pivot_instruction,
+                    agent_state, agent_state.sensor_states['color_sensor'],
+                    goal_image=goal['goal_image'] if goal['mode'] == 'image' else None
+                )
+                images.update(pivot_images)
+                logging_data = {}
+                step_metadata['action_number'] = -100
+            else:
+                step_metadata, logging_data, _ = self._prompting(goal, a_final, images, step_metadata)
+                agent_action = self._action_number_to_polar(step_metadata['action_number'], list(a_final))
+
+        logging_data['STOPPING RESPONSE'] = stopping_response
+        metadata = {
+            'step_metadata': step_metadata,
+            'logging_data': logging_data,
+            'a_final': a_final,
+            'images': images
+        }
+        return agent_action, metadata
+    
+    def _construct_prompt(self, goal: dict, prompt_type: str, num_actions=0):
+        """Constructs the prompt, depending on the goal modality. """
+        if goal['mode'] == 'object':
+            task = f'Navigate to the nearest {goal["name"]}'
+            first_instruction = f'Find the nearest {goal["name"]} and navigate as close as you can to it. '
+        if goal['mode'] == 'description':
+            first_instruction = f"Find and navigate to the {goal['lang_desc']}. Navigate as close as you can to it. "
+            task = first_instruction
+        if goal['mode'] == 'image':
+            task = f'Navigate to the specific {goal["name"]} shown in the image labeled GOAL IMAGE. Pay close attention to the details, and note you may see the object from a different angle than in the goal image. Navigate as close as you can to it '
+            first_instruction = f"Observe the image labeled GOAL IMAGE. Find this specific {goal['name']} shown in the image and navigate as close as you can to it. "
+
+        if prompt_type == 'stopping':        
+            stopping_prompt = (f"The agent has the following navigation task: \n{task}\n. The agent has sent you an image taken from its current location{' as well as the goal image. ' if goal['mode'] == 'image' else '. '} "
+                                f'Your job is to determine whether the agent is close to the specified {goal["name"].upper()}'
+                                f"First, tell me what you see in the image, and tell me if there is a {goal['name']} that matches the description. Then, return 1 if the agent is close to the {goal['name']}, and 0 if it isn't. Format your answer in the json {{'done': <1 or 0>}}")
+            return stopping_prompt
+
+        if prompt_type == 'pivot':
+            return f'{first_instruction} Use your prior knowledge about where items are typically located within a home. '
+        
+        if prompt_type == 'no_project':
+            baseline_prompt = (f"TASK: {first_instruction} use your prior knowledge about where items are typically located within a home. "
+                        "You have four possible actions: {0: Turn completely around, 1: Turn left, 2: Move straight ahead, 3: Turn right}. "
+                        f"First, tell me what you see, and if you have any leads on finding the {goal['name']}. Second, tell me which general direction you should go in. "
+                        f"Lastly, explain which action acheives that best, and return it as {{'action': <action_key>}}. Note you CANNOT GO THROUGH CLOSED DOORS, and you DO NOT NEED TO GO UP OR DOWN STAIRS"             
+            )
+            return baseline_prompt
+        
+        if prompt_type == 'action':
+            action_prompt = (
+                f"TASK: NAVIGATE TO THE NEAREST {goal['name'].upper()}, and get as close to it as possible. Use your prior knowledge about where items are typically located within a home. "
+                f"There are {num_actions - 1} red arrows superimposed onto your observation, which represent potential actions. " 
+                f"These are labeled with a number in a white circle, which represent the location you would move to if you took that action. "
+                f"{'NOTE: choose action 0 if you want to TURN AROUND or DONT SEE ANY GOOD ACTIONS. ' if self.step_ndx - self.turned >= self.cfg['turn_around_cooldown'] else ''}"
+                "Let's solve this navigation task step by step:\\n"
+                "1. Current State: What do you observe in the environment? What objects and pathways are visible?\\n"
+                "2. Goal Analysis: Based on the target and home layout knowledge, where is the {goal} likely to be?\\n"
+                "3. Path Planning: What's the most promising direction to reach the target? Consider available paths and typical room layouts.\\n"
+                "4. Action Decision: Which numbered arrow best serves your plan? Return your choice as {{'action': <action_key>}}. Note you CANNOT GO THROUGH CLOSED DOORS, and you DO NOT NEED TO GO UP OR DOWN STAIRS."
+            )
+            return action_prompt
+
+        raise ValueError('Prompt type must be stopping, pivot, no_project, or action')
+
+    def reset_goal(self):
+        """Called after every subtask of GOAT. Notably does not reset the voxel map, only resets all areas to be unexplored"""
+        self.stopping_calls = [self.step_ndx-2]
+        self.explored_map = np.zeros_like(self.explored_map)
+        self.turned = self.step_ndx - self.cfg['turn_around_cooldown']
+
+
+class ObjectNavAgent(VLMNavAgent):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # 修改模型加载逻辑
+        try:
+            # 首先尝试从本地加载
+            model_path = "models/clip-ViT-B-32"  # 假设模型保存在项目的 models 目录下
+            if os.path.exists(model_path):
+                self.text_encoder = SentenceTransformer(model_path)
+                logging.info(f"Loaded text encoder from local path: {model_path}")
+            else:
+                # 如果本地没有，尝试从网络加载
+                self.text_encoder = SentenceTransformer('clip-ViT-B-32')
+                # 保存到本地以供后续使用
+                self.text_encoder.save(model_path)
+        except Exception as e:
+            logging.error(f"Failed to load SentenceTransformer: {e}")
+            # 使用备选模型或生成随机编码
+            self.text_encoder = None
+            
+        # 初始化Embodied-RAG组件
+        self.topological_map = TopologicalMap()
+        self.semantic_forest = SemanticForest()
+        self.memory_nodes = []
+        self.memory_enabled = True
+        self.caption_cache = {}
+        self.memory_update_interval = 10  # 每10步更新一次记忆
+
+    def step(self, obs: dict):
+        try:
+            agent_state = obs['agent_state']
+            image = obs.get('color_sensor')
+            
+            # 检查图像
+            if image is not None:
+                logging.info(f"Memory source image: {image.shape}, min={image.min()}, max={image.max()}")
+                
+                # 如果图像异常，检查第一行像素
+                if image.shape[0] < 10 or image.shape[1] < 10:
+                    logging.warning(f"Suspicious image dimensions: {image.shape}")
+                    if len(image.shape) >= 2:
+                        sample_pixels = image[0, :5] if image.shape[1] >= 5 else image[0, :]
+                        logging.info(f"Sample pixels: {sample_pixels}")
+        except Exception as e:
+            logging.error(f"Error checking image: {e}")
+        # 构建记忆（如果启用）
+        if self.memory_enabled and self.step_ndx % self.memory_update_interval == 0:
+            self._build_memory(obs)
+            
+        # 调用原始step方法
+        agent_action, metadata = super().step(obs)
+        
+        # 增强元数据（添加记忆可视化）
+        if self.memory_enabled and len(self.memory_nodes) > 0:
+            if 'images' not in metadata:
+                metadata['images'] = {}
+                
+            # 生成记忆地图可视化
+            memory_map = self._visualize_memory()
+            if memory_map is not None:
+                metadata['images']['memory_map'] = memory_map
+                
+        return agent_action, metadata
+        
+    def _build_memory(self, obs):
+        """构建记忆节点并更新拓扑图和语义森林"""
+        try:
+            agent_state = obs['agent_state']
+            image = self._ensure_rgb_image(obs['color_sensor'])
+            goal = obs['goal']
+            if image is not None:
+                if len(image.shape) == 2:
+                    image = np.stack([image] * 3, axis=2)
+                elif len(image.shape) == 3 and image.shape[2] != 3:
+                    image = image[:, :, :3]
+            # 生成图像描述
+            full_caption = self._generate_caption(image)
+            
+            # 创建记忆节点
+            position = agent_state.position.tolist()
+            rotation = [agent_state.rotation.x, agent_state.rotation.y, 
+                      agent_state.rotation.z, agent_state.rotation.w]
+            timestamp = self.step_ndx
+            
+            # 计算文本嵌入
+            embedding = None
+            if self.text_encoder is not None:
+                try:
+                    # 适应CLIP的文本长度限制
+                    words = full_caption.split()
+                    if len(words) > 30:  # 估计值
+                        clip_caption = " ".join(words[:30])
+                        logging.info("Using shortened caption for CLIP embedding")
+                    else:
+                        clip_caption = full_caption
+                        
+                    embedding = self.text_encoder.encode(clip_caption, show_progress_bar=False)
+                    
+                    # 存储完整描述，但使用截断版本的嵌入
+                    node_data = {
+                        'position': position,
+                        'rotation': rotation,
+                        'timestamp': timestamp,
+                        'image': image.copy() if image is not None else None,
+                        'caption': full_caption,  # 完整描述
+                        'embedding': embedding    # 截断版本的嵌入
+                    }
+                    
+                except Exception as e:
+                    logging.error(f"Error encoding caption: {e}")
+            
+            # 添加到拓扑地图
+            self.topological_map.add_node(
+                position, rotation, timestamp, 
+                image.copy() if image is not None else None, 
+                full_caption
+            )
+            
+            # 添加到语义森林
+            self.semantic_forest.add_node(node_data)
+            
+            # 保存节点记录
+            self.memory_nodes.append(node_data)
+            
+            logging.info(f"Built memory node {len(self.memory_nodes)}: {full_caption[:30]}...")
+
+            
+        except Exception as e:
+            logging.error(f"Error building memory: {e}")
+    
+    def _ensure_rgb_image(self, image):
+        """确保图像是RGB格式"""
+        if image is None:
+            return None
+            
+        # 如果是2D图像，转为3D
+        if len(image.shape) == 2:
+            return np.stack([image] * 3, axis=2)
+        # 如果已经是3D但通道数不是3
+        elif len(image.shape) == 3 and image.shape[2] != 3:
+            return image[:, :, :3]
+        return image
+    
+    def _generate_caption(self, image):
+        """使用VLM生成图像描述"""
+        if image is None:
+            return "No image available"
+            
+        # 检查缓存
+        image_hash = hash(str(image.tobytes())) if hasattr(image, 'tobytes') else hash(str(image))
+        if image_hash in self.caption_cache:
+            return self.caption_cache[image_hash]
+        
+        try:
+            # 确保图像格式正确
+            image = self._ensure_rgb_image(image)
+            
+            # 使用VLM生成描述
+            caption_prompt = "Describe what you see in this scene briefly."
+            caption = self.actionVLM.call([image], caption_prompt)
+            
+            # 清理描述并缓存
+            caption = caption.strip()
+            self.caption_cache[image_hash] = caption
+            return caption
+        except Exception as e:
+            logging.error(f"Error generating caption: {e}")
+            return "A room in a building"
+    
+    # 原始的_choose_action方法保持不变!
+    
+    def _prompting(self, goal, a_final: list, images: dict, step_metadata: dict):
+        """增强的提示方法，添加记忆上下文"""
+        # 检索相关记忆
+        memory_context = ""
+        if self.memory_enabled and len(self.memory_nodes) >= 3:
+            try:
+                # 获取当前位置和查询
+                agent_state = step_metadata.get('agent_state', None)
+                current_pos = agent_state.position.tolist() if agent_state else None
+                
+                goal_name = goal['name'] if isinstance(goal, dict) else str(goal)
+                query = f"Find {goal_name}"
+                
+                # 检索相关记忆
+                relevant_memories = self.semantic_forest.retrieve(
+                    query, current_pos, self.text_encoder, top_k=3
+                )
+                
+                # 生成记忆上下文
+                if relevant_memories:
+                    memory_context = self._generate_memory_context(relevant_memories)
+            except Exception as e:
+                logging.error(f"Error retrieving memories: {e}")
+        
+        # 构建提示（保持原有逻辑）
+        prompt_type = 'action' if self.cfg['project'] else 'no_project'
+        
+        # 构建完整提示
+        action_prompt = self._construct_prompt(goal, prompt_type, num_actions=len(a_final))
+        
+        # 添加记忆上下文（如果有）
+        if memory_context:
+            action_prompt += f"\n\nMemory Information:\n{memory_context}"
+            logging.info(f"memory_context: {memory_context}")
+        # 准备图像
+        prompt_images = [images['color_sensor']]
+        if 'goal_image' in images:
+            prompt_images.append(images['goal_image'])
+        
+        # 发送请求给VLM
+        response = self.actionVLM.call_chat(self.cfg['context_history'], prompt_images, action_prompt)
+        
+        # 解析响应
+        try:
+            response_dict = self._eval_response(response)
+            step_metadata['action_number'] = int(response_dict['action'])
+        except Exception as e:
+            logging.error(f'Error parsing response: {str(e)}')
+            step_metadata['success'] = 0
+        
+        # 构建日志数据
+        logging_data = {
+            'PROMPT': action_prompt,
+            'RESPONSE': response
+        }
+        
+        # 如果有记忆上下文，添加到日志
+        if memory_context:
+            logging_data['MEMORY_CONTEXT'] = memory_context
+        
+        return step_metadata, logging_data, response
+    
+    def _generate_memory_context(self, relevant_memories):
+        """从相关记忆生成上下文描述"""
+        if not relevant_memories:
+            return ""
+        
+        context_parts = ["Based on what I've seen before:"]
+        for i, memory in enumerate(relevant_memories):
+            caption = memory.get('caption', 'No description')
+            context_parts.append(f"{i+1}. {caption}")
+        
+        return "\n".join(context_parts)
+    
+    def _visualize_memory(self):
+        """生成记忆可视化"""
+        try:
+            # 如果没有足够的记忆节点，返回None
+            if len(self.memory_nodes) < 2:
+                return None
+                
+            # 创建地图
+            map_size = 500
+            memory_map = np.ones((map_size, map_size, 3), dtype=np.uint8) * 255
+            
+            # 获取所有位置
+            positions = np.array([node['position'][:2] for node in self.memory_nodes])
+            min_x, min_y = np.min(positions, axis=0)
+            max_x, max_y = np.max(positions, axis=0)
+            
+            # 添加一些边界空间
+            range_x = max(1.0, max_x - min_x) * 1.1
+            range_y = max(1.0, max_y - min_y) * 1.1
+            min_x -= range_x * 0.05
+            min_y -= range_y * 0.05
+            
+            # 坐标转换函数
+            def world_to_map(pos):
+                x = int((pos[0] - min_x) / range_x * (map_size - 20) + 10)
+                y = int((pos[1] - min_y) / range_y * (map_size - 20) + 10)
+                return x, y
+            
+            # 画出节点连接
+            for i in range(len(self.memory_nodes) - 1):
+                start = world_to_map(self.memory_nodes[i]['position'][:2])
+                end = world_to_map(self.memory_nodes[i+1]['position'][:2])
+                cv2.line(memory_map, start, end, (200, 200, 200), 1)
+            
+            # 画出所有节点
+            for node in self.memory_nodes:
+                pos = world_to_map(node['position'][:2])
+                cv2.circle(memory_map, pos, 3, (100, 100, 100), -1)
+            
+            # 标记当前位置
+            if self.memory_nodes:
+                current = world_to_map(self.memory_nodes[-1]['position'][:2])
+                cv2.circle(memory_map, current, 5, (0, 0, 255), -1)
+            
+            # 添加标题
+            cv2.putText(memory_map, "Memory Map", (10, 20), 
+                      cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)
+            
+            return memory_map
+            
+        except Exception as e:
+            logging.error(f"Error generating memory visualization: {e}")
+            return None
+        
+    def _choose_action(self, obs: dict):
+        agent_state = obs['agent_state']
+        goal = obs['goal']
+
+        # 运行线程以获取可用动作和图像
+        a_final, images, step_metadata, stopping_response = self._run_threads(obs, [obs['color_sensor']], goal)
+        step_metadata['object'] = goal
+
+        # 获取与目标物体相邻的物体
+        # 如果模型连续两次调用停止，则终止该回合
+        if len(self.stopping_calls) >= 2 and self.stopping_calls[-2] == self.step_ndx - 1:
+            step_metadata['action_number'] = -1
+            agent_action = PolarAction.stop
+            logging_data = {} 
+        else:
+            if self.pivot is not None:
+                pivot_instruction = self._construct_prompt(goal, 'pivot')
+                agent_action, pivot_images = self.pivot.run(
+                    obs['color_sensor'], pivot_instruction,
+                    agent_state, agent_state.sensor_states['color_sensor']
+                )
+                images.update(pivot_images)
+                logging_data = {}
+                step_metadata['action_number'] = -100
+            else:
+                # 在调用 _prompting 时传递相邻物体信息
+                step_metadata, logging_data, _ = self._prompting(goal, a_final, images, step_metadata)
+                agent_action = self._action_number_to_polar(step_metadata['action_number'], list(a_final))
+
+        logging_data['STOPPING RESPONSE'] = stopping_response
+        metadata = {
+            'step_metadata': step_metadata,
+            'logging_data': logging_data,
+            'a_final': a_final,
+            'images': images
+        }
+        return agent_action, metadata
+
+    def _construct_prompt(self, goal: str, prompt_type:str, num_actions: int=0):
+        if prompt_type == 'stopping':
+            stopping_prompt = (f"The agent has has been tasked with navigating to a {goal.upper()}. The agent has sent you an image taken from its current location. "
+            f'Your job is to determine whether the agent is VERY CLOSE to a {goal}. Note a chair is NOT sofa which is NOT a bed. '
+            f"First, tell me what you see in the image, and tell me if there is a {goal}. Second, return 1 if the agent is VERY CLOSE to the {goal} - make sure the object you see is ACTUALLY a {goal}, Return 0 if if there is no {goal}, or if it is far away, or if you are not sure. Format your answer in the json {{'done': <1 or 0>}}")
+            return stopping_prompt
+        if prompt_type == 'no_project':
+            baseline_prompt = (f"TASK: NAVIGATE TO THE NEAREST {goal.upper()} and get as close to it as possible. Use your prior knowledge about where items are typically located within a home. "
+                        "You have four possible actions: {0: Turn completely around, 1: Turn left, 2: Move straight ahead, 3: Turn right}. "
+                        f"First, tell me what you see in your sensor observation, and if you have any leads on finding the {goal.upper()}. Second, tell me which general direction you should go in. "
+                        f"Lastly, explain which action acheives that best, and return it as {{'action': <action_key>}}. Note you CANNOT GO THROUGH CLOSED DOORS, and you DO NOT NEED TO GO UP OR DOWN STAIRS"             
+            )
+            return baseline_prompt
+        if prompt_type == 'pivot':
+            pivot_prompt = f"NAVIGATE TO THE NEAREST {goal.upper()} and get as close to it as possible. Use your prior knowledge about where items are typically located within a home. "
+            return pivot_prompt
+        if prompt_type == 'action':
+            action_prompt = (
+                f"TASK: NAVIGATE TO THE NEAREST {goal.upper()}, and get as close to it as possible. Use your prior knowledge about where items are typically located within a home. "
+                f"There are {num_actions - 1} red arrows superimposed onto your observation, which represent potential actions. " 
+                f"These are labeled with a number in a white circle, which represent the location you would move to if you took that action. "
+                f"{'NOTE: choose action 0 if you want to TURN AROUND or DONT SEE ANY GOOD ACTIONS. ' if self.step_ndx - self.turned >= self.cfg['turn_around_cooldown'] else ''}"
+                "Let's solve this navigation task step by step:\\n"
+                "1. Current State: What do you observe in the environment? What objects and pathways are visible? Look carefully for the target object, even if it's partially visible or at a distance.\\n"
+                "2. Goal Analysis: Based on the target and home layout knowledge, where is the {goal} likely to be?\\n"
+                "3. Path Planning: What's the most promising direction to reach the target? Avoid revisiting previously explored areas unless necessary. Consider:\\n"
+                "   - Available paths and typical room layouts\\n"
+                "   - Areas you haven't explored yet\\n"
+                "4. Action Decision: Which numbered arrow best serves your plan? Return your choice as {{'action': <action_key>}}. Note:\\n"
+                "   - You CANNOT GO THROUGH CLOSED DOORS\\n"
+                "   - You DO NOT NEED TO GO UP OR DOWN STAIRS\\n"
+                "   - If you see the target object, even partially, take time to confirm its identity\\n"
+                "   - Choose paths that lead to unexplored areas when possible"
+            )
+            return action_prompt
+
+        raise ValueError('Prompt type must be stopping, pivot, no_project, or action')
