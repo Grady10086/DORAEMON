@@ -84,10 +84,8 @@ class Env:
         """
         Runs the experiment by iterating over episodes.
         """
-        # 使用START_FROM作为基础起点
         base_start = self.cfg.get('start_from', 0)
-        
-        # 每个实例处理固定数量的连续任务
+
         instance_id = self.cfg['instance']
         start_ndx = base_start + (instance_id * self.cfg['num_episodes'])
         end_ndx = min(start_ndx + self.cfg['num_episodes'], self.num_episodes)
@@ -125,7 +123,6 @@ class Env:
         logging.info(f'\n===================STARTING RUN: {self.curr_run_name} ===================\n')
         for _ in range(self.cfg['max_steps']):
             try:
-                # 检查是否达到Habitat步数限制
                 if hasattr(self, 'habitat_steps') and self.habitat_steps >= 500:
                     logging.info(f"Episode terminated: Reached Habitat max steps limit (500)")
                     break
@@ -150,43 +147,30 @@ class Env:
             episode_ndx (int): The index of the episode to initialize.
         """
         self.step = 0
-        self.habitat_steps = 0  # Habitat离散步数计数器
+        self.habitat_steps = 0  
         self.init_pos = None
         self.df = pd.DataFrame({})
         self.agent_distance_traveled = 0
         self.prev_agent_position = None
-        # 重置区域覆盖追踪器
         if hasattr(self, 'area_tracker'):
             self.area_tracker.reset()
 
     def _calculate_habitat_steps(self, action: PolarAction):
-        """将PolarAction转换为等效的Habitat离散步数
-        
-        在Habitat中:
-        - MOVE FORWARD: 0.25m 
-        - TURN LEFT/RIGHT: 30° (π/6)
-        - LOOK UP/DOWN: 30° (π/6)
-        - STOP: 1步
-        """
         if action.type == 'stop':
-            return 1  # STOP
-        
-        # 计算所需的habitat步数
+            return 1  
+
         step_count = 0
-        
-        # 处理移动距离 (每0.25m是一步)
+
         if action.r > 0:
             forward_steps = math.ceil(action.r / 0.25)
             step_count += forward_steps
-        
-        # 处理旋转角度 (每30°是一步)
+
         if abs(action.theta) > 0:
-            # 将弧度转换为度
             degrees = abs(math.degrees(action.theta))
             turn_steps = math.ceil(degrees / 30)
             step_count += turn_steps
         
-        return max(1, step_count)  # 至少是1步
+        return max(1, step_count)
 
     def _step_env(self, obs: dict):
         """
@@ -196,16 +180,13 @@ class Env:
         agent_state = obs['agent_state']
         if self.prev_agent_position is not None:
             self.agent_distance_traveled += np.linalg.norm(agent_state.position - self.prev_agent_position)
-            
-            # 在这里更新habitat_steps (添加这段代码)
+
             if hasattr(self, 'last_agent_action') and self.last_agent_action:
-                # 计算动作所需的habitat步数
                 habitat_step_delta = self._calculate_habitat_steps(self.last_agent_action)
                 self.habitat_steps += habitat_step_delta
                 logging.info(f"Habitat step count: {self.habitat_steps}/500")
                 
         self.prev_agent_position = agent_state.position
-        # 将habitat步数添加到obs
         obs['habitat_steps'] = self.habitat_steps
         return None
 
@@ -220,18 +201,16 @@ class Env:
         
         if self.cfg['parallel']:
             try:
-                # 创建不使用代理的 session
                 session = requests.Session()
-                session.trust_env = False  # 不使用环境变量中的代理设置
+                session.trust_env = False 
                 
                 self.wandb_log_data['spend'] = self.agent.get_spend()
                 self.wandb_log_data['default_rate'] = len(self.df[self.df['success'] == 0]) / len(self.df)
-                
-                # 使用 session 发送请求
+
                 response = session.post(
                     f'http://localhost:{self.cfg["port"]}/log',
                     json=self.wandb_log_data,
-                    proxies=None,  # 明确禁用代理
+                    proxies=None,
                     timeout=30
                 )
                 
@@ -245,33 +224,25 @@ class Env:
                 logging.error(e)
 
         logging.info('\n===================RUN COMPLETE===================\n')
-        """确保每个Episode结束后彻底清理环境资源"""
-        # 重置并关闭模拟器
+
         if hasattr(self, 'simWrapper') and self.simWrapper is not None:
             try:
-                logging.info("重置并关闭模拟器...")
+                logging.info("close habitat...")
                 self.simWrapper.reset()
-                self.simWrapper = None  # 完全删除引用，让GC回收
+                self.simWrapper = None 
             except Exception as e:
-                logging.warning(f"关闭模拟器时出错: {e}")
-        
-        # 清理场景和路径相关资源
+                logging.warning(f"close wrong: {e}")
+
         if hasattr(self, 'path_calculator'):
             if hasattr(self.path_calculator, 'requested_ends'):
-                self.path_calculator.requested_ends = np.array([], dtype=np.float32)  # 使用空数组而不是None
-        
-        # 释放当前Episode资源
+                self.path_calculator.requested_ends = np.array([], dtype=np.float32) 
+
         if hasattr(self, 'current_episode'):
             self.current_episode = {}
-        
-        # 强制调用垃圾回收
+
         import gc
         gc.collect()
-        # if self.cfg['log_freq'] == 1:
-        #     create_gif(
-        #         f'logs/{self.outer_run_name}/{self.inner_run_name}/{self.curr_run_name}',
-        #     )
-        
+
     def _log(self, images: dict, step_metadata: dict, logging_data: dict):
         """
         Appends the step metadata to the dataframe, and saves the images and general metadata to disk.
@@ -301,13 +272,11 @@ class Env:
         Calculates the navigation metrics at a given step.
         """
         metrics = {}
-        
-        # 原有的导航路径距离计算
+
         self.path_calculator.requested_start = agent_state.position
         nav_distance = self.simWrapper.get_path(self.path_calculator)
         metrics['distance_to_goal'] = nav_distance
-        
-        # 计算到视点的直线距离
+
         view_euclidean_distance = float('inf')
         if hasattr(self, 'current_episode'):
             if isinstance(self.current_episode, dict) and 'view_positions' in self.current_episode:
@@ -317,12 +286,10 @@ class Env:
                 if distances:
                     view_euclidean_distance = min(distances)
                     metrics['view_euclidean_distance'] = view_euclidean_distance
-        
-        # 保留原有物体位置直线距离计算
+
         euclidean_distance = float('inf')
         if hasattr(self, 'current_episode') and 'object_positions' in self.current_episode:
             if self.current_episode['object_positions']:
-                # 计算到所有目标位置的直线距离
                 euclidean_distances = []
                 for pos in self.current_episode['object_positions']:
                     if isinstance(pos, (list, np.ndarray)):
@@ -332,30 +299,26 @@ class Env:
                     euclidean_distance = min(euclidean_distances)
                     metrics['euclidean_distance'] = euclidean_distance
 
-        logging.info(f"导航距离: {nav_distance}m, 到视点直线距离: {view_euclidean_distance}m, 到物体直线距离: {euclidean_distance}m")
+        logging.info(f"nav_distance: {nav_distance}m, view_distance: {view_euclidean_distance}m")
         
         metrics['distance_to_goal'] = self.simWrapper.get_path(self.path_calculator)
         metrics['spl'] = 0
         metrics['goal_reached'] = False
         metrics['done'] = False
         metrics['finish_status'] = 'running'
-        metrics['habitat_steps'] = self.habitat_steps  # 添加此行
-        # 修复AORI获取方式
+        metrics['habitat_steps'] = self.habitat_steps
         if hasattr(self.agent, 'area_tracker'):
-            # 直接从area_tracker获取当前AORI值，与details.txt中记录的值保持一致
             if hasattr(self.agent.area_tracker, 'calculate_aori'):
                 current_aori = self.agent.area_tracker.calculate_aori()
-                metrics['trustworthy_metrics'] = float(current_aori)  # 确保是浮点数
-            # 作为备选，仍然使用calculate_trustworthy_metrics但不使用默认值1.0
+                metrics['trustworthy_metrics'] = float(current_aori)
             elif hasattr(self.agent, 'calculate_trustworthy_metrics'):
                 trustworthy_data = self.agent.calculate_trustworthy_metrics()
-                metrics['trustworthy_metrics'] = float(trustworthy_data.get("aori", 0.0))  # 改用0.0作为默认值
+                metrics['trustworthy_metrics'] = float(trustworthy_data.get("aori", 0.0)
             else:
                 metrics['trustworthy_metrics'] = 0.0
         else:
             metrics['trustworthy_metrics'] = 0.0
-        
-        # 添加其他可能需要的详细指标
+
         if hasattr(self.agent, 'calculate_trustworthy_metrics'):
             trustworthy_data = self.agent.calculate_trustworthy_metrics()
             metrics['repeat_percentage'] = trustworthy_data.get("repeat_percentage", 0)
@@ -366,15 +329,13 @@ class Env:
             if self.habitat_steps >= 500:
                 metrics['finish_status'] = 'habitat_max_steps'
                 logging.info(f"Reached Habitat max steps limit (500)")
-        
-            # 添加欧几里得距离日志
+
             logging.info(f"Stop action triggered:")
             logging.info(f"导航距离: {metrics['distance_to_goal']}m")
             logging.info(f"直线距离: {euclidean_distance}m")
             logging.info(f"Success threshold: {self.cfg['success_threshold']}")
             logging.info(f"Agent position: {agent_state.position}")
 
-            # 使用导航距离或欧几里得距离判断成功，取较小值
             effective_distance = min(metrics['distance_to_goal'], view_euclidean_distance)
             if effective_distance < self.cfg['success_threshold']:
                 metrics['finish_status'] = 'success'
@@ -616,7 +577,6 @@ class ObjectNavEnv(Env):
         self.agent_distance_traveled += np.linalg.norm(agent_state.position - self.prev_agent_position)
         self.prev_agent_position = agent_state.position
         agent_action, metadata = self.agent.step(obs)
-        # 正确位置：在创建agent_action后再保存它
         self.last_agent_action = agent_action
         step_metadata = metadata['step_metadata']
         logging_data = metadata['logging_data']
@@ -624,8 +584,7 @@ class ObjectNavEnv(Env):
 
         metrics = self._calculate_metrics(agent_state, agent_action, self.current_episode['shortest_path'], self.cfg['max_steps'])
         step_metadata.update(metrics)
-        
-        # 每步更新wandb_log_data中的trustworthy_metrics
+
         self.wandb_log_data['trustworthy_metrics'] = metrics['trustworthy_metrics']
 
         self._log(images, step_metadata, logging_data)
