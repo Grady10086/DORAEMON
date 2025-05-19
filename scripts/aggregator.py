@@ -6,10 +6,10 @@ import wandb
 import sys
 import os
 from flask import Flask, request, jsonify
-current_dir = os.path.dirname(os.path.abspath(__file__))  # 获取 scripts 目录
-project_root = os.path.dirname(current_dir)  # 获取项目根目录
-src_path = os.path.join(project_root, 'src')  # 获取 src 目录路径
-sys.path.insert(0, src_path)  # 添加到 Python 路径
+current_dir = os.path.dirname(os.path.abspath(__file__))  
+project_root = os.path.dirname(current_dir) 
+src_path = os.path.join(project_root, 'src')
+sys.path.insert(0, src_path)  
 from utils import *
 
 # Initialize Flask app
@@ -38,7 +38,6 @@ def terminate():
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    """健康检查端点，返回当前状态"""
     return jsonify({
         'status': 'running',
         'episodes_completed': len(episodes_completed),
@@ -97,24 +96,21 @@ def log_task_data():
                 'spl': sum(row['spl'] for row in goal_rows) / len(goal_rows),
             }
             
-            # 添加 trustworthy_score (转换 AORI，越低越好 -> 越高越好)
             if goal_rows and any('trustworthy_metrics' in row for row in goal_rows):
                 out_log['trustworthy_score'] = 1.0 - sum(row.get('trustworthy_metrics', 0) 
                                                      for row in goal_rows) / len(goal_rows)
             
             wandb.log(out_log)
-        # 添加 ObjectNav 处理
+
         elif task.lower() == 'objectnav':
             objectnav_episodes = [ep for ep in episode_data if ep['task'].lower() == 'objectnav']
             if objectnav_episodes:
-                # 计算 ObjectNav 特定指标
                 out_log = {
                     'objectnav_episodes': len(objectnav_episodes),
                     'objectnav_success_rate': sum(1 for ep in objectnav_episodes if ep.get('goal_reached', False)) / len(objectnav_episodes),
                     'objectnav_spl': sum(ep.get('spl', 0) for ep in objectnav_episodes) / len(objectnav_episodes),
                 }
                 
-                # 添加 AORI 指标
                 if any('trustworthy_metrics' in ep for ep in objectnav_episodes):
                     aori_values = [ep.get('trustworthy_metrics', 0.0) for ep in objectnav_episodes]
                     out_log['objectnav_trustworthy_score'] = 1.0 - sum(aori_values) / len(objectnav_episodes)
@@ -139,8 +135,7 @@ def wandb_logging(sleep_interval):
             for key, value in cumulative_metrics.items():
                 if key != 'episodes_completed' and cumulative_metrics['episodes_completed'] > 0:
                     if key == 'trustworthy_metrics':
-                        # AORI 是越低越好，转换为越高越好的 trustworthy_score
-                        out_data['trustworthy_score'] = 1.0 - (value / cumulative_metrics['episodes_completed'])
+                        out_data['trustworthy_score'] = (value / cumulative_metrics['episodes_completed'])
                     else:
                         out_data[key] = value / cumulative_metrics['episodes_completed']
             
@@ -166,8 +161,7 @@ def wandb_logging(sleep_interval):
         for key, value in cumulative_metrics.items():
             if key != 'episodes_completed' and value > 0:
                 if key == 'trustworthy_metrics':
-                    # AORI 是越低越好，转换为越高越好的 trustworthy_score
-                    out_data['trustworthy_score'] = 1.0 - (value / cumulative_metrics['episodes_completed'])
+                    out_data['trustworthy_score'] = (value / cumulative_metrics['episodes_completed'])
                 else:
                     out_data[key] = value / cumulative_metrics['episodes_completed']
         wandb.log(out_data)
