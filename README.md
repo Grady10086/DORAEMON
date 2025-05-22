@@ -1,43 +1,31 @@
-VLMnav_RAG
-基于大语言模型和检索增强的视觉语言导航系统
+#🔔DORAEMON: Decentralized Ontology-aware Reliable Agent with Enhanced Memory Oriented Navigation
 
-项目介绍
-VLMnav_RAG 是一个创新的视觉语言导航系统，结合了大型视觉语言模型（VLM）和检索增强生成（RAG）技术，使智能体能够在复杂三维环境中进行自然语言指导的导航任务。该系统不仅能理解自然语言指令，还能通过视觉感知有效探索环境并找到目标对象或位置。
+##📚 Contents
+- [Abstract](#Abstract)
+- [Demo](#Demo)
+- [Update](#Update)
+- [Get Started](#Get-Started)
 
-演示视频
-我们提供了一系列演示视频，展示 VLMnav_RAG 系统在各种导航场景中的表现：
+##Abstract
+Adaptive navigation in unfamiliar environments is crucial for household service robots but remains challenging due to the need for both low-level path planning and high-level scene understanding. While recent vision-language model (VLM) based zero-shot approaches reduce dependence on prior maps and scene-specific training data, they face significant limitations: spatiotemporal discontinuity from discrete observations, unstructured memory representations, and insufficient task understanding leading to navigation failures. We propose DORAEMON (Decentralized Ontology-aware Reliable Agent with Enhanced Memory Oriented Navigation), a novel cognitive-inspired framework consisting of Ventral and Dorsal Streams that mimics human navigation capabilities. The Dorsal Stream implements the Hierarchical Semantic-Spatial Fusion and Topology Map to handle spatiotemporal discontinuities, while the Ventral Stream combines RAG-VLM and Policy-VLM to improve decision-making. Our approach also develop Nav-Ensurance to ensure navigation safety and efficiency.
 
-主要演示视频
-我们的项目演示视频可在以下位置查看：
+##Demo
+![Demo1]
+![Demo2]
 
-完整演示视频: 观看视频
-ObjectNav 任务演示: 观看视频
-复杂环境导航: 观看视频
-案例研究
-以下视频展示了我们系统在不同场景下的案例研究：
+##Update
+🔥We’ve reorganized and cleaned up the repository to ensure a clear, well-structured codebase. Please give the training and inference scripts a try, and feel free to leave an issue if you run into any problems. We apologize for any confusion caused by our original codebase release.
 
-家居环境导航: Case 1
-办公环境导航: Case 2
-多目标有序导航: Case 3
-性能比较视频
-与基线方法的比较: 观看视频
-消融研究演示: 观看视频
-系统特点
-基于视觉语言模型的理解: 利用先进的视觉语言模型处理自然语言指令和环境视觉输入
-检索增强导航: 实时构建和更新环境记忆，支持高效检索和路径规划
-适应性探索: 在未知环境中智能调整探索策略
-多模态推理: 整合视觉、文本和空间信息进行决策
-高效实现: 优化的计算流程，支持实时导航决策
-安装与使用
-请参考 安装指南 和 使用教程 了解如何设置和运行系统。
 
-引用
-如果您在研究中使用了本项目，请引用我们的论文：
+##Get-Started
+###Installation and Setup
+- clone this repo.
 
-许可证
-本项目采用 MIT 许可证 - 详情请参阅 LICENSE 文件。
+- Create the conda environment and install all dependencies.
+conda create -n doraemon python=3.9 cmake=3.14.0
+conda activate doraemon
+conda install habitat-sim=0.3.1 withbullet headless -c conda-forge -c aihabitat
 
-联系我们
-如有任何问题，请通过以下方式联系我们：
+pip install -e .
 
-邮箱: contact@example.com
+pip install -r requirements.txt
