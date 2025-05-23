@@ -3,9 +3,10 @@
 
 ## 📚 Contents
 - [Abstract](#Abstract)
-- [Demo](#Demo)
 - [Update](#Update)
+- [Demo](#Demo)
 - [Get Started](#Get-Started)
+- [Evaluation](#Evaluation)
 
 ## ✨ Abstract
 Adaptive navigation in unfamiliar environments is crucial for household service robots but remains challenging due to the need for both low-level path planning and high-level scene understanding. While recent vision-language model (VLM) based zero-shot approaches reduce dependence on prior maps and scene-specific training data, they face significant limitations: spatiotemporal discontinuity from discrete observations, unstructured memory representations, and insufficient task understanding leading to navigation failures. We propose DORAEMON (Decentralized Ontology-aware Reliable Agent with Enhanced Memory Oriented Navigation), a novel cognitive-inspired framework consisting of Ventral and Dorsal Streams that mimics human navigation capabilities. The Dorsal Stream implements the Hierarchical Semantic-Spatial Fusion and Topology Map to handle spatiotemporal discontinuities, while the Ventral Stream combines RAG-VLM and Policy-VLM to improve decision-making. Our approach also develop Nav-Ensurance to ensure navigation safety and efficiency.
@@ -16,28 +17,41 @@ Adaptive navigation in unfamiliar environments is crucial for household service 
 🔥 We’ve released some demos. `5.22, 2025`
 
 ## 📺 Demo
+
+🛋️ SOFA
 ![Demo1](https://github.com/Grady10086/DORAEMON/blob/master/case1.gif)
 
+🟦 TABLE
 ![Demo2](https://github.com/Grady10086/DORAEMON/blob/master/case2.gif)
 
+🛏️ BED
 ![Demo3](https://github.com/Grady10086/DORAEMON/blob/master/case3.gif)
 
+🌳 PLANT
 ![Demo4](https://github.com/Grady10086/DORAEMON/blob/master/case4.gif)
 
+🗄️ CABINET
 ![Demo5](https://github.com/Grady10086/DORAEMON/blob/master/case5.gif)
 
+💺 CHAIR
 ![Demo6](https://github.com/Grady10086/DORAEMON/blob/master/case6.gif)
 
+🌳 PLANT
 ![Demo7](https://github.com/Grady10086/DORAEMON/blob/master/case7.gif)
 
+🛋️ SOFA
 ![Demo8](https://github.com/Grady10086/DORAEMON/blob/master/case8.gif)
 
+📺 TV
 ![Demo9](https://github.com/Grady10086/DORAEMON/blob/master/case9.gif)
 
+🚽 TOILET
 ![Demo10](https://github.com/Grady10086/DORAEMON/blob/master/case10.gif)
 
+🛋️ SOFA
 ![Demo11](https://github.com/Grady10086/DORAEMON/blob/master/case11.gif)
 
+💺 CHAIR
 ![Demo12](https://github.com/Grady10086/DORAEMON/blob/master/case12.gif)
 
 ## 🚀 Get Started
