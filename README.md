@@ -108,6 +108,8 @@ Our code requires all above data to be in a data folder in the following format.
 │  │  │  │  ├──2azQ1b91cZZ.json.gz
 │  │  │  ├── val.json.gz
 ```
+### 🔑 Prepare Gemini API
+You can set your own GeminiAPI key by `export GEMINI_API_KEY=xxx`
 
 ### 📈 Evaluation
 Run `python scripts/main.py` to visualize the result of an episode.
