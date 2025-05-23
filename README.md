@@ -31,7 +31,7 @@ Adaptive navigation in unfamiliar environments is crucial for household service 
 ![Demo4](https://github.com/Grady10086/DORAEMON/blob/master/case4.gif)
 
 🗄️ CABINET
-![Demo5](https://github.com/Grady10086/DORAEMON/blob/master/case5.gif)
+![(https://github.com/Grady10086/DORAEMON/blob/master/case5-min.gif)](https://github.com/Grady10086/DORAEMON/blob/master/case5-min.gif)
 
 💺 CHAIR
 ![Demo6](https://github.com/Grady10086/DORAEMON/blob/master/case6.gif)
