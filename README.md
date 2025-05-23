@@ -101,7 +101,7 @@ Our code requires all above data to be in a data folder in the following format.
 │  │  │  ├── 17DRP5sb8fy.house
 │  │  │  ├── 17DRP5sb8fy.navmesh
 │  │  │  ├── 17DRP5sb8fy_semantic.ply
-│  │  ├── mp3d_annotated_basis.scene_dataset_config.json
+│  │  ├── mmp3d.scene_dataset_config.json
 │  ├── objectnav_mp3d/
 │  │  ├── val/
 │  │  │  ├── content/
