@@ -114,4 +114,4 @@ You can set your own GeminiAPI key by `export GEMINI_API_KEY=xxx`
 ### 📈 Evaluation
 Run `python scripts/main.py` to visualize the result of an episode.
 
-To evaluate DORAEMON, we use a framework for parallel evaluation in(HM3D v0.1 contains 1000 episodes, 2000 episodes for HM3D v0.2 and 2195 episodes for MP3D). The file ```parallel_gpi0.sh``` contains a script to distribute K instances over N GPUs, and for each of them to run M episodes. A local flask server is intialized to handle the data aggregation, and then the aggregated results are logged to wandb. Make sure you are logged in with `wandb login`
+To evaluate DORAEMON, we use a framework for parallel evaluation in(HM3D v0.1 contains 1000 episodes, 2000 episodes for HM3D v0.2 and 2195 episodes for MP3D). The file ```parallel_gpu0.sh``` contains a script to distribute K instances over N GPUs, and for each of them to run M episodes. A local flask server is intialized to handle the data aggregation, and then the aggregated results are logged to wandb. Make sure you are logged in with `wandb login`
