@@ -19,40 +19,40 @@ Adaptive navigation in unfamiliar environments is crucial for household service 
 ## 📺 Demo
 
 🛋️ SOFA
-![Demo1](https://github.com/Grady10086/DORAEMON/blob/master/case1.gif)
+![Demo1](https://github.com/Grady10086/DORAEMON/blob/master/demos/case1.gif)
 
 🟦 TABLE
-![Demo2](https://github.com/Grady10086/DORAEMON/blob/master/case2.gif)
+![Demo2](https://github.com/Grady10086/DORAEMON/blob/master/demos/case2.gif)
 
 🛏️ BED
-![Demo3](https://github.com/Grady10086/DORAEMON/blob/master/case3.gif)
+![Demo3](https://github.com/Grady10086/DORAEMON/blob/master/demos/case3.gif)
 
 🌳 PLANT
-![Demo4](https://github.com/Grady10086/DORAEMON/blob/master/case4.gif)
+![Demo4](https://github.com/Grady10086/DORAEMON/blob/master/demos/case4.gif)
 
 🗄️ CABINET
-![Demo5](https://github.com/Grady10086/DORAEMON/blob/master/case5-min.gif)
+![Demo5](https://github.com/Grady10086/DORAEMON/blob/master/demos/case5-min.gif)
 
 💺 CHAIR
-![Demo6](https://github.com/Grady10086/DORAEMON/blob/master/case6.gif)
+![Demo6](https://github.com/Grady10086/DORAEMON/blob/master/demos/case6.gif)
 
 🌳 PLANT
-![Demo7](https://github.com/Grady10086/DORAEMON/blob/master/case7.gif)
+![Demo7](https://github.com/Grady10086/DORAEMON/blob/master/demos/case7.gif)
 
 🛋️ SOFA
-![Demo8](https://github.com/Grady10086/DORAEMON/blob/master/case8.gif)
+![Demo8](https://github.com/Grady10086/DORAEMON/blob/master/demos/case8.gif)
 
 📺 TV
-![Demo9](https://github.com/Grady10086/DORAEMON/blob/master/case9.gif)
+![Demo9](https://github.com/Grady10086/DORAEMON/blob/master/demos/case9.gif)
 
 🚽 TOILET
-![Demo10](https://github.com/Grady10086/DORAEMON/blob/master/case10.gif)
+![Demo10](https://github.com/Grady10086/DORAEMON/blob/master/demos/case10.gif)
 
 🛋️ SOFA
-![Demo11](https://github.com/Grady10086/DORAEMON/blob/master/case11.gif)
+![Demo11](https://github.com/Grady10086/DORAEMON/blob/master/demos/case11.gif)
 
 💺 CHAIR
-![Demo12](https://github.com/Grady10086/DORAEMON/blob/master/case12.gif)
+![Demo12](https://github.com/Grady10086/DORAEMON/blob/master/demos/case12.gif)
 
 ## 🚀 Get Started
 
