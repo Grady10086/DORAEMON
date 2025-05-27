@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DORAEMON: Decentralized Ontology-aware Reliable Agent with Enhanced Memory Oriented Navigation</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <!-- Hero Section -->
@@ -16,20 +18,34 @@
             
             <!-- Author Information -->
             <div class="authors">
-                <p class="author-names">[Your Names Here]</p>
-                <p class="affiliation">[Your Institution]</p>
+                <div class="author-names">
+                    <span class="author">Tianjun Gu<sup>1</sup></span>
+                    <span class="author">Linfeng Li<sup>1</sup></span>
+                    <span class="author">Xuhong Wang<sup>3</sup></span>
+                    <span class="author">Chenghua Gong<sup>1</sup></span>
+                    <span class="author">Jingyu Gong<sup>1</sup></span>
+                    <span class="author">Zhizhong Zhang<sup>1</sup></span>
+                    <span class="author">Yuan Xie<sup>1,3</sup></span>
+                    <span class="author">Lizhuang Ma<sup>1</sup></span>
+                    <span class="author">Xin Tan<sup>1,2</sup></span>
+                </div>
+                <div class="affiliations">
+                    <div class="affiliation"><sup>1</sup>East China Normal University</div>
+                    <div class="affiliation"><sup>2</sup>Shanghai AI Lab</div>
+                    <div class="affiliation"><sup>3</sup>Shanghai Innovation Institute</div>
+                </div>
             </div>
             
             <!-- Action Buttons -->
             <div class="action-buttons">
                 <a href="https://github.com/Grady10086/DORAEMON" class="btn btn-primary" target="_blank">
-                    <span class="btn-icon">📂</span> Code
+                    <i class="fab fa-github"></i> Code
                 </a>
                 <a href="#" class="btn btn-secondary" target="_blank">
-                    <span class="btn-icon">📄</span> Paper (Coming Soon)
+                    <i class="fas fa-file-pdf"></i> Paper (Coming Soon)
                 </a>
                 <a href="#demo" class="btn btn-accent">
-                    <span class="btn-icon">🎬</span> Demo
+                    <i class="fas fa-play"></i> Demo
                 </a>
             </div>
         </div>
@@ -38,17 +54,23 @@
     <!-- Navigation -->
     <nav class="sticky-nav">
         <div class="container">
-            <a href="#abstract">Abstract</a>
-            <a href="#demo">Demo</a>
+            <a href="#overview">Overview</a>
             <a href="#method">Method</a>
+            <a href="#demo">Demo</a>
             <a href="#results">Results</a>
         </div>
     </nav>
 
     <main class="container">
-        <!-- Abstract Section -->
-        <section id="abstract" class="section">
-            <h2>Abstract</h2>
+        <!-- Overview Section -->
+        <section id="overview" class="section">
+            <h2>Overview</h2>
+            
+            <!-- Teaser Image -->
+            <div class="teaser-container">
+                <img src="fig1.png" alt="DORAEMON Teaser" class="teaser-image">
+            </div>
+            
             <div class="abstract-content">
                 <p>
                     Adaptive navigation in unfamiliar environments is crucial for household service robots but remains challenging due to the need for both low-level path planning and high-level scene understanding. While recent vision-language model (VLM) based zero-shot approaches reduce dependence on prior maps and scene-specific training data, they face significant limitations: spatiotemporal discontinuity from discrete observations, unstructured memory representations, and insufficient task understanding leading to navigation failures.
@@ -57,8 +79,85 @@
                     We propose <strong>DORAEMON</strong> (Decentralized Ontology-aware Reliable Agent with Enhanced Memory Oriented Navigation), a novel cognitive-inspired framework consisting of Ventral and Dorsal Streams that mimics human navigation capabilities. The Dorsal Stream implements the Hierarchical Semantic-Spatial Fusion and Topology Map to handle spatiotemporal discontinuities, while the Ventral Stream combines RAG-VLM and Policy-VLM to improve decision-making. Our approach also develops Nav-Ensurance to ensure navigation safety and efficiency.
                 </p>
                 <p>
-                    We evaluate DORAEMON on the HM3D, MP3D, and GOAT datasets, where it achieves state-of-the-art performance on both success rate (SR) and success weighted by path length (SPL) metrics, significantly outperforming existing methods. We also introduce a new evaluation metric (AORI) to assess navigation intelligence better. Comprehensive experiments demonstrate DORAEMON's effectiveness in zero-shot autonomous navigation without requiring prior map building or pre-training.
+                    We evaluate DORAEMON on the HM3D, MP3D, and GOAT datasets, where it achieves state-of-the-art performance on both success rate (SR) and success weighted by path length (SPL) metrics, significantly outperforming existing methods. We also introduce a new evaluation metric (AORI) to assess navigation intelligence better.
                 </p>
+            </div>
+        </section>
+
+        <!-- Method Section -->
+        <section id="method" class="section">
+            <h2>Method</h2>
+            
+            <!-- Overall Architecture -->
+            <div class="method-subsection">
+                <h3>Overall Architecture</h3>
+                <div class="figure-container">
+                    <img src="fig2.png" alt="Overall Architecture" class="method-figure">
+                </div>
+                <p class="figure-caption">
+                    DORAEMON employs a dual-stream cognitive architecture inspired by human navigation systems, featuring coordinated Dorsal and Ventral streams with Nav-Ensurance for robust navigation.
+                </p>
+            </div>
+
+            <!-- Dorsal Stream -->
+            <div class="method-subsection">
+                <h3>Dorsal Stream: Spatial Processing</h3>
+                <div class="figure-container">
+                    <img src="fig3.png" alt="Dorsal Stream" class="method-figure">
+                </div>
+                <p class="figure-caption">
+                    The Dorsal Stream handles spatial processing through Hierarchical Semantic-Spatial Fusion and Topology Mapping, addressing spatiotemporal discontinuities in navigation.
+                </p>
+            </div>
+
+            <!-- Ventral Stream -->
+            <div class="method-subsection">
+                <h3>Ventral Stream: Object Recognition & Decision Making</h3>
+                <div class="figure-container">
+                    <img src="fig4.png" alt="Ventral Stream" class="method-figure">
+                </div>
+                <p class="figure-caption">
+                    The Ventral Stream manages object recognition and decision-making through RAG-VLM (Retrieval-Augmented Generation with Vision-Language Models) and Policy-VLM components.
+                </p>
+            </div>
+
+            <!-- Key Features -->
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">🧠</div>
+                    <h4>Cognitive Architecture</h4>
+                    <p>Dual-stream processing inspired by human navigation capabilities</p>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">🗺️</div>
+                    <h4>Spatial Reasoning</h4>
+                    <p>Hierarchical semantic-spatial fusion with topology mapping</p>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">🔍</div>
+                    <h4>Memory Enhancement</h4>
+                    <p>RAG-based memory system for improved decision making</p>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">🛡️</div>
+                    <h4>Nav-Ensurance</h4>
+                    <p>Safety and efficiency monitoring with adaptive correction</p>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">🎯</div>
+                    <h4>AORI Metric</h4>
+                    <p>Novel evaluation metric for navigation intelligence assessment</p>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">⚡</div>
+                    <h4>Zero-Shot</h4>
+                    <p>No prior map building or environment-specific training required</p>
+                </div>
             </div>
         </section>
 
@@ -66,7 +165,7 @@
         <section id="demo" class="section">
             <h2>Demo Visualization</h2>
             <p class="section-description">
-                Here we showcase DORAEMON's navigation capabilities across various scenarios. Each demo demonstrates the agent's ability to navigate and find target objects in different indoor environments without prior maps or training data.
+                Comprehensive demonstration of DORAEMON's navigation capabilities across diverse indoor environments, showcasing zero-shot autonomous navigation without prior maps or training data.
             </p>
             
             <div class="demo-grid">
@@ -74,167 +173,66 @@
                     <div class="demo-image-container">
                         <img src="demos/case1.gif" alt="Kitchen Navigation" loading="lazy">
                         <div class="demo-overlay">
-                            <span class="demo-label">Case 1</span>
+                            <span class="demo-label">Kitchen</span>
                         </div>
                     </div>
-                    <h3>Kitchen Navigation</h3>
-                    <p>Navigating through kitchen environment to locate target objects</p>
+                    <h4>Kitchen Navigation</h4>
+                    <p>Navigating complex kitchen layouts with appliances and furniture</p>
                 </div>
                 
                 <div class="demo-item">
                     <div class="demo-image-container">
-                        <img src="demos/case2.gif" alt="Living Room Exploration" loading="lazy">
+                        <img src="demos/case2.gif" alt="Living Room" loading="lazy">
                         <div class="demo-overlay">
-                            <span class="demo-label">Case 2</span>
+                            <span class="demo-label">Living Room</span>
                         </div>
                     </div>
-                    <h3>Living Room Exploration</h3>
-                    <p>Exploring complex living room layouts with multiple furniture</p>
+                    <h4>Living Room Exploration</h4>
+                    <p>Systematic exploration of open-plan living spaces</p>
                 </div>
                 
                 <div class="demo-item">
                     <div class="demo-image-container">
-                        <img src="demos/case3.gif" alt="Bedroom Object Search" loading="lazy">
+                        <img src="demos/case3.gif" alt="Bedroom" loading="lazy">
                         <div class="demo-overlay">
-                            <span class="demo-label">Case 3</span>
+                            <span class="demo-label">Bedroom</span>
                         </div>
                     </div>
-                    <h3>Bedroom Object Search</h3>
-                    <p>Systematic search for objects in bedroom environments</p>
+                    <h4>Bedroom Search</h4>
+                    <p>Object search in private bedroom environments</p>
                 </div>
                 
                 <div class="demo-item">
                     <div class="demo-image-container">
-                        <img src="demos/case4.gif" alt="Bathroom Navigation" loading="lazy">
+                        <img src="demos/case4.gif" alt="Bathroom" loading="lazy">
                         <div class="demo-overlay">
-                            <span class="demo-label">Case 4</span>
+                            <span class="demo-label">Bathroom</span>
                         </div>
                     </div>
-                    <h3>Bathroom Navigation</h3>
-                    <p>Navigating in confined bathroom spaces</p>
+                    <h4>Bathroom Navigation</h4>
+                    <p>Precise navigation in confined bathroom spaces</p>
                 </div>
                 
                 <div class="demo-item">
                     <div class="demo-image-container">
-                        <img src="demos/case5.gif" alt="Multi-Room Exploration" loading="lazy">
+                        <img src="demos/case5.gif" alt="Multi-Room" loading="lazy">
                         <div class="demo-overlay">
-                            <span class="demo-label">Case 5</span>
+                            <span class="demo-label">Multi-Room</span>
                         </div>
                     </div>
-                    <h3>Multi-Room Exploration</h3>
-                    <p>Cross-room navigation and spatial understanding</p>
+                    <h4>Multi-Room Navigation</h4>
+                    <p>Cross-room exploration with spatial memory</p>
                 </div>
                 
                 <div class="demo-item">
                     <div class="demo-image-container">
-                        <img src="demos/case6.gif" alt="Complex Layout Navigation" loading="lazy">
+                        <img src="demos/case6.gif" alt="Complex Layout" loading="lazy">
                         <div class="demo-overlay">
-                            <span class="demo-label">Case 6</span>
+                            <span class="demo-label">Complex</span>
                         </div>
                     </div>
-                    <h3>Complex Layout Navigation</h3>
-                    <p>Handling complex architectural layouts</p>
-                </div>
-                
-                <div class="demo-item">
-                    <div class="demo-image-container">
-                        <img src="demos/case7.gif" alt="Furniture Avoidance" loading="lazy">
-                        <div class="demo-overlay">
-                            <span class="demo-label">Case 7</span>
-                        </div>
-                    </div>
-                    <h3>Furniture Avoidance</h3>
-                    <p>Dynamic obstacle avoidance around furniture</p>
-                </div>
-                
-                <div class="demo-item">
-                    <div class="demo-image-container">
-                        <img src="demos/case8.gif" alt="Dynamic Object Tracking" loading="lazy">
-                        <div class="demo-overlay">
-                            <span class="demo-label">Case 8</span>
-                        </div>
-                    </div>
-                    <h3>Dynamic Object Tracking</h3>
-                    <p>Tracking and following dynamic objects</p>
-                </div>
-                
-                <div class="demo-item">
-                    <div class="demo-image-container">
-                        <img src="demos/case9.gif" alt="Narrow Passage Navigation" loading="lazy">
-                        <div class="demo-overlay">
-                            <span class="demo-label">Case 9</span>
-                        </div>
-                    </div>
-                    <h3>Narrow Passage Navigation</h3>
-                    <p>Navigating through narrow corridors and passages</p>
-                </div>
-                
-                <div class="demo-item">
-                    <div class="demo-image-container">
-                        <img src="demos/case10.gif" alt="Long-Range Planning" loading="lazy">
-                        <div class="demo-overlay">
-                            <span class="demo-label">Case 10</span>
-                        </div>
-                    </div>
-                    <h3>Long-Range Planning</h3>
-                    <p>Long-distance navigation with strategic planning</p>
-                </div>
-                
-                <div class="demo-item">
-                    <div class="demo-image-container">
-                        <img src="demos/case11.gif" alt="Memory-Guided Search" loading="lazy">
-                        <div class="demo-overlay">
-                            <span class="demo-label">Case 11</span>
-                        </div>
-                    </div>
-                    <h3>Memory-Guided Search</h3>
-                    <p>Utilizing memory for efficient search strategies</p>
-                </div>
-                
-                <div class="demo-item">
-                    <div class="demo-image-container">
-                        <img src="demos/case12.gif" alt="Adaptive Recovery" loading="lazy">
-                        <div class="demo-overlay">
-                            <span class="demo-label">Case 12</span>
-                        </div>
-                    </div>
-                    <h3>Adaptive Recovery</h3>
-                    <p>Recovery from navigation failures and deadlocks</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Method Section -->
-        <section id="method" class="section">
-            <h2>Method Overview</h2>
-            <div class="method-content">
-                <p>
-                    DORAEMON employs a dual-stream cognitive architecture inspired by human navigation systems:
-                </p>
-                
-                <div class="method-grid">
-                    <div class="method-item">
-                        <div class="method-icon">🧠</div>
-                        <h3>Dorsal Stream</h3>
-                        <p>Handles spatial processing through Hierarchical Semantic-Spatial Fusion and Topology Mapping, addressing spatiotemporal discontinuities in navigation.</p>
-                    </div>
-                    
-                    <div class="method-item">
-                        <div class="method-icon">👁️</div>
-                        <h3>Ventral Stream</h3>
-                        <p>Manages object recognition and decision-making through RAG-VLM (Retrieval-Augmented Generation with Vision-Language Models) and Policy-VLM components.</p>
-                    </div>
-                    
-                    <div class="method-item">
-                        <div class="method-icon">🛡️</div>
-                        <h3>Nav-Ensurance</h3>
-                        <p>Ensures navigation safety and efficiency through adaptive monitoring and correction mechanisms.</p>
-                    </div>
-                </div>
-                
-                <div class="highlight-box">
-                    <h4>🎯 AORI Metric</h4>
-                    <p>Our framework introduces the <strong>AORI (Area Overlap Rate Index)</strong> metric to better evaluate navigation intelligence, providing a comprehensive assessment of exploration efficiency and spatial understanding.</p>
+                    <h4>Complex Architecture</h4>
+                    <p>Handling irregular and complex floor plans</p>
                 </div>
             </div>
         </section>
@@ -243,23 +241,26 @@
         <section id="results" class="section">
             <h2>Results</h2>
             <p class="section-description">
-                DORAEMON achieves state-of-the-art performance across multiple datasets and metrics.
+                DORAEMON achieves state-of-the-art performance across multiple benchmarks, demonstrating superior navigation capabilities and intelligence.
             </p>
             
             <div class="results-grid">
                 <div class="result-item">
+                    <div class="result-icon">🏠</div>
                     <h3>HM3D Dataset</h3>
-                    <p>Significant improvements in Success Rate (SR) and Success weighted by Path Length (SPL)</p>
+                    <p>Significant improvements in Success Rate (SR) and Success weighted by Path Length (SPL) on the largest indoor navigation benchmark</p>
                 </div>
                 
                 <div class="result-item">
+                    <div class="result-icon">🏢</div>
                     <h3>MP3D Dataset</h3>
-                    <p>Outstanding performance in complex multi-room navigation scenarios</p>
+                    <p>Outstanding performance in complex multi-room navigation scenarios with photorealistic environments</p>
                 </div>
                 
                 <div class="result-item">
+                    <div class="result-icon">🎯</div>
                     <h3>GOAT Dataset</h3>
-                    <p>Superior zero-shot navigation capabilities without prior training</p>
+                    <p>Superior zero-shot navigation capabilities on goal-oriented autonomous tasks without prior training</p>
                 </div>
             </div>
         </section>
@@ -269,61 +270,65 @@
     <footer class="footer">
         <div class="container">
             <p>&copy; 2025 DORAEMON Research Team. All Rights Reserved.</p>
-            <p>
-                <a href="https://github.com/Grady10086/DORAEMON" target="_blank">GitHub</a> | 
-                <a href="#" target="_blank">Paper (Coming Soon)</a>
-            </p>
+            <div class="footer-links">
+                <a href="https://github.com/Grady10086/DORAEMON" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+                <a href="#" target="_blank">
+                    <i class="fas fa-file-pdf"></i> Paper (Coming Soon)
+                </a>
+                <a href="#" onclick="showBibTeX()">
+                    <i class="fas fa-quote-right"></i> BibTeX
+                </a>
+            </div>
         </div>
     </footer>
 
     <!-- BibTeX Modal -->
     <div id="bibtex-modal" class="modal">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2>BibTeX Citation</h2>
-            <pre><code>@article{doraemon2024,
+            <span class="close-button" onclick="closeBibTeX()">&times;</span>
+            <h3>BibTeX Citation</h3>
+            <pre><code>@article{doraemon2025,
   title   = {DORAEMON: Decentralized Ontology-aware Reliable Agent with Enhanced Memory Oriented Navigation},
-  author  = {[Your Names Here]},
+  author  = {Tianjun Gu and Linfeng Li and Xuhong Wang and Chenghua Gong and Jingyu Gong and Zhizhong Zhang and Yuan Xie and Lizhuang Ma and Xin Tan},
   journal = {arXiv preprint},
-  year    = {2024},
+  year    = {2025},
   url     = {https://github.com/Grady10086/DORAEMON}
 }</code></pre>
         </div>
     </div>
 
     <script>
-        // Smooth scrolling for navigation links
+        // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
             });
         });
 
-        // BibTeX Modal Script
-        const modal = document.getElementById("bibtex-modal");
-        const btns = document.querySelectorAll('[href="#bibtex-modal"]');
-        const span = document.getElementsByClassName("close-button")[0];
+        // BibTeX Modal
+        function showBibTeX() {
+            document.getElementById("bibtex-modal").style.display = "block";
+        }
 
-        btns.forEach(btn => {
-            btn.onclick = function(event) {
-                event.preventDefault();
-                modal.style.display = "block";
-            }
-        });
-
-        span.onclick = function() {
-            modal.style.display = "none";
+        function closeBibTeX() {
+            document.getElementById("bibtex-modal").style.display = "none";
         }
 
         window.onclick = function(event) {
+            const modal = document.getElementById("bibtex-modal");
             if (event.target == modal) {
                 modal.style.display = "none";
             }
         }
     </script>
-
 </body>
 </html>
