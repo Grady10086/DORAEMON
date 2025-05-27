@@ -207,7 +207,7 @@ main {
 }
 
 .teaser-image {
-    max-width: 100%;
+    max-width: 70%;
     height: auto;
     border-radius: 12px;
     box-shadow: 0 20px 50px rgba(0,0,0,0.1);
@@ -245,7 +245,7 @@ main {
 }
 
 .method-figure {
-    max-width: 80%;
+    max-width: 70%;
     height: auto;
     border-radius: 8px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
@@ -781,7 +781,7 @@ img {
 .demo-image-container {
     position: relative;
     overflow: hidden;
-    height: 200px;
+    height: 140px;
 }
 
 .demo-image-container img {
@@ -1007,8 +1007,8 @@ img {
     }
     
     .doraemon-icon {
-        width: 50px;
-        height: 50px;
+        width: 8px;
+        height: 8px;
     }
     
     .hero-title {
