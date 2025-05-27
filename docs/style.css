@@ -756,3 +756,121 @@ main {
         grid-template-columns: 1fr;
     }
 }
+
+/* 确保所有图片都能正确显示 */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Demo section specific styles */
+.demo-item {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.demo-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+}
+
+.demo-image-container {
+    position: relative;
+    overflow: hidden;
+    height: 200px;
+}
+
+.demo-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.demo-item:hover .demo-image-container img {
+    transform: scale(1.05);
+}
+
+.demo-item h4 {
+    padding: 15px 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+    text-align: center;
+    margin: 0;
+    background: white;
+}
+
+/* 修复表格显示问题 */
+.comprehensive-table-container {
+    overflow-x: auto;
+    margin-top: 30px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+.comprehensive-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1000px;
+    font-size: 0.85rem;
+}
+
+.comprehensive-table th,
+.comprehensive-table td {
+    padding: 8px 6px;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+    white-space: nowrap;
+}
+
+.comprehensive-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.8rem;
+}
+
+.comprehensive-table .highlight-row {
+    background-color: #f0f4ff;
+    font-weight: 600;
+}
+
+/* 确保表格在移动设备上可滚动 */
+@media (max-width: 768px) {
+    .comprehensive-table {
+        font-size: 0.75rem;
+    }
+    
+    .comprehensive-table th,
+    .comprehensive-table td {
+        padding: 6px 4px;
+    }
+}
+
+/* 修复图片加载问题 */
+.demo-image-container img[src$=".gif"] {
+    object-fit: cover;
+    background-color: #f3f4f6;
+}
+
+/* 如果图片加载失败，显示占位符 */
+.demo-image-container img:not([src]),
+.demo-image-container img[src=""] {
+    background-color: #e5e7eb;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+}
+
+.demo-image-container img:not([src])::before,
+.demo-image-container img[src=""]::before {
+    content: "Image Loading...";
+}
