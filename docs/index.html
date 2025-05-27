@@ -12,8 +12,11 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="container">
-            <h1 class="hero-title">DORAEMON</h1>
-            <h2 class="hero-subtitle">Decentralized Ontology-aware Reliable Agent with Enhanced Memory Oriented Navigation</h2>
+            <div class="hero-title-container">
+                <img src="doraemon_icon.png" alt="Doraemon Icon" class="doraemon-icon">
+                <h1 class="hero-title">DORAEMON</h1>
+            </div>
+            <h2 class="hero-subtitle">Decentralized Ontology-aware Reliable Agent with Enhanced Memory&nbsp;Oriented&nbsp;Navigation</h2>
             
             <!-- Author Information -->
             <div class="authors">
@@ -67,7 +70,10 @@
             
             <!-- Teaser Image -->
             <div class="teaser-container">
-                <img src="fig1.png" alt="DORAEMON Teaser" class="teaser-image">
+                <img src="fig1.png" alt="DORAEMON Teaser" class="teaser-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div class="image-placeholder" style="display:none;">
+                    <p>Teaser Image (fig1.png) - Loading...</p>
+                </div>
             </div>
             
             <div class="abstract-content">
@@ -91,18 +97,24 @@
             <div class="method-subsection">
                 <h3>Overall Architecture</h3>
                 <div class="figure-container">
-                    <img src="fig2.png" alt="Overall Architecture" class="method-figure">
+                    <img src="fig2.png" alt="Overall Architecture" class="method-figure" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="image-placeholder" style="display:none;">
+                        <p>Overall Architecture (fig2.png) - Loading...</p>
+                    </div>
                 </div>
                 <p class="figure-caption">
-                    DORAEMON employs a dual-stream cognitive architecture inspired by human navigation systems, featuring coordinated Dorsal and Ventral streams with Nav-Ensurance for robust navigation.
+                    DORAEMON employs a decentralized ontology-awarearchitecture inspired by human navigation systems, featuring coordinated Dorsal and Ventral streams with Nav-Ensurance for robust navigation.
                 </p>
             </div>
 
             <!-- Dorsal Stream -->
             <div class="method-subsection">
-                <h3>Dorsal Stream: Spatial Processing</h3>
+                <h3>Dorsal Stream</h3>
                 <div class="figure-container">
-                    <img src="fig3.png" alt="Dorsal Stream" class="method-figure">
+                    <img src="fig3.png" alt="Dorsal Stream" class="method-figure" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="image-placeholder" style="display:none;">
+                        <p>Dorsal Stream (fig3.png) - Loading...</p>
+                    </div>
                 </div>
                 <p class="figure-caption">
                     The Dorsal Stream handles spatial processing through Hierarchical Semantic-Spatial Fusion and Topology Mapping, addressing spatiotemporal discontinuities in navigation.
@@ -111,42 +123,16 @@
 
             <!-- Ventral Stream -->
             <div class="method-subsection">
-                <h3>Ventral Stream: Object Recognition & Decision Making</h3>
+                <h3>Ventral Stream</h3>
                 <div class="figure-container">
-                    <img src="fig4.png" alt="Ventral Stream" class="method-figure">
+                    <img src="fig4.png" alt="Ventral Stream" class="method-figure" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="image-placeholder" style="display:none;">
+                        <p>Ventral Stream (fig4.png) - Loading...</p>
+                    </div>
                 </div>
                 <p class="figure-caption">
                     The Ventral Stream manages object recognition and decision-making through RAG-VLM (Retrieval-Augmented Generation with Vision-Language Models) and Policy-VLM components.
                 </p>
-            </div>
-
-            <!-- Method Overview -->
-            <div class="method-overview">
-                <p>
-                    DORAEMON employs a dual-stream cognitive architecture inspired by human navigation systems:
-                </p>
-                
-                <div class="method-grid">
-                    <div class="method-item">
-                        <h4>Dorsal Stream</h4>
-                        <p>Handles spatial processing through Hierarchical Semantic-Spatial Fusion and Topology Mapping, addressing spatiotemporal discontinuities in navigation.</p>
-                    </div>
-                    
-                    <div class="method-item">
-                        <h4>Ventral Stream</h4>
-                        <p>Manages object recognition and decision-making through RAG-VLM (Retrieval-Augmented Generation with Vision-Language Models) and Policy-VLM components.</p>
-                    </div>
-                    
-                    <div class="method-item">
-                        <h4>Nav-Ensurance</h4>
-                        <p>Ensures navigation safety and efficiency through adaptive monitoring and correction mechanisms.</p>
-                    </div>
-                    
-                    <div class="method-item">
-                        <h4>AORI Metric</h4>
-                        <p>Novel evaluation metric for navigation intelligence assessment, providing comprehensive evaluation of exploration efficiency.</p>
-                    </div>
-                </div>
             </div>
         </section>
 
@@ -157,84 +143,120 @@
             <div class="demo-grid">
                 <div class="demo-item">
                     <div class="demo-image-container">
-                        <img src="demos/case1.gif" alt="SOFA Navigation" loading="lazy">
+                        <img src="demos/case1.gif" alt="SOFA Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>🛋️ Demo Loading...</span>
+                        </div>
                     </div>
                     <h4>🛋️ SOFA</h4>
                 </div>
                 
                 <div class="demo-item">
                     <div class="demo-image-container">
-                        <img src="demos/case2.gif" alt="TABLE Navigation" loading="lazy">
+                        <img src="demos/case2.gif" alt="TABLE Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>🟦 Demo Loading...</span>
+                        </div>
                     </div>
                     <h4>🟦 TABLE</h4>
                 </div>
                 
                 <div class="demo-item">
                     <div class="demo-image-container">
-                        <img src="demos/case3.gif" alt="BED Navigation" loading="lazy">
+                        <img src="demos/case3.gif" alt="BED Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>🛏️ Demo Loading...</span>
+                        </div>
                     </div>
                     <h4>🛏️ BED</h4>
                 </div>
                 
                 <div class="demo-item">
                     <div class="demo-image-container">
-                        <img src="demos/case4.gif" alt="PLANT Navigation" loading="lazy">
+                        <img src="demos/case4.gif" alt="PLANT Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>🌳 Demo Loading...</span>
+                        </div>
                     </div>
                     <h4>🌳 PLANT</h4>
                 </div>
                 
                 <div class="demo-item">
                     <div class="demo-image-container">
-                        <img src="demos/case5.gif" alt="CABINET Navigation" loading="lazy">
+                        <img src="demos/case5.gif" alt="CABINET Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>🗄️ Demo Loading...</span>
+                        </div>
                     </div>
                     <h4>🗄️ CABINET</h4>
                 </div>
                 
                 <div class="demo-item">
                     <div class="demo-image-container">
-                        <img src="demos/case6.gif" alt="CHAIR Navigation" loading="lazy">
+                        <img src="demos/case6.gif" alt="CHAIR Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>💺 Demo Loading...</span>
+                        </div>
                     </div>
                     <h4>💺 CHAIR</h4>
                 </div>
 
                 <div class="demo-item">
                     <div class="demo-image-container">
-                        <img src="demos/case7.gif" alt="PLANT Navigation" loading="lazy">
+                        <img src="demos/case7.gif" alt="PLANT Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>🌳 Demo Loading...</span>
+                        </div>
                     </div>
                     <h4>🌳 PLANT</h4>
                 </div>
 
                 <div class="demo-item">
                     <div class="demo-image-container">
-                        <img src="demos/case8.gif" alt="SOFA Navigation" loading="lazy">
+                        <img src="demos/case8.gif" alt="SOFA Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>🛋️ Demo Loading...</span>
+                        </div>
                     </div>
                     <h4>🛋️ SOFA</h4>
                 </div>
 
                 <div class="demo-item">
                     <div class="demo-image-container">
-                        <img src="demos/case9.gif" alt="TV Navigation" loading="lazy">
+                        <img src="demos/case9.gif" alt="TV Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>📺 Demo Loading...</span>
+                        </div>
                     </div>
                     <h4>📺 TV</h4>
                 </div>
 
                 <div class="demo-item">
                     <div class="demo-image-container">
-                        <img src="demos/case10.gif" alt="TOILET Navigation" loading="lazy">
+                        <img src="demos/case10.gif" alt="TOILET Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>🚽 Demo Loading...</span>
+                        </div>
                     </div>
                     <h4>🚽 TOILET</h4>
                 </div>
 
                 <div class="demo-item">
                     <div class="demo-image-container">
-                        <img src="demos/case11.gif" alt="SOFA Navigation" loading="lazy">
+                        <img src="demos/case11.gif" alt="SOFA Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>🛋️ Demo Loading...</span>
+                        </div>
                     </div>
                     <h4>🛋️ SOFA</h4>
                 </div>
 
                 <div class="demo-item">
                     <div class="demo-image-container">
-                        <img src="demos/case12.gif" alt="CHAIR Navigation" loading="lazy">
+                        <img src="demos/case12.gif" alt="CHAIR Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>💺 Demo Loading...</span>
+                        </div>
                     </div>
                     <h4>💺 CHAIR</h4>
                 </div>
@@ -346,252 +368,255 @@
                 </div>
 
                 <h3>Comprehensive Comparison with State-of-the-Art Methods</h3>
-                <div class="comprehensive-table-container">
-                    <table class="comprehensive-table">
-                        <thead>
-                            <tr>
-                                <th rowspan="2">Method</th>
-                                <th>ZS</th>
-                                <th>TF</th>
-                                <th>E2E</th>
-                                <th colspan="2">HM3Dv1</th>
-                                <th colspan="2">HM3Dv2</th>
-                                <th colspan="2">MP3D</th>
-                            </tr>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th>SR(%) ↑</th>
-                                <th>SPL(%) ↑</th>
-                                <th>SR(%) ↑</th>
-                                <th>SPL(%) ↑</th>
-                                <th>SR(%) ↑</th>
-                                <th>SPL(%) ↑</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>ProcTHOR</td>
-                                <td>✗</td>
-                                <td>✗</td>
-                                <td>✗</td>
-                                <td>54.4</td>
-                                <td>31.8</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                            </tr>
-                            <tr>
-                                <td>SemEXP</td>
-                                <td>✓</td>
-                                <td>✗</td>
-                                <td>✗</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>36.0</td>
-                                <td>14.4</td>
-                            </tr>
-                            <tr>
-                                <td>Habitat-Web</td>
-                                <td>✓</td>
-                                <td>✗</td>
-                                <td>✗</td>
-                                <td>41.5</td>
-                                <td>16.0</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>31.6</td>
-                                <td>8.5</td>
-                            </tr>
-                            <tr>
-                                <td>PONI</td>
-                                <td>✓</td>
-                                <td>✗</td>
-                                <td>✗</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>31.8</td>
-                                <td>12.1</td>
-                            </tr>
-                            <tr>
-                                <td>ProcTHOR-ZS</td>
-                                <td>✓</td>
-                                <td>✗</td>
-                                <td>✗</td>
-                                <td>13.2</td>
-                                <td>7.7</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                            </tr>
-                            <tr>
-                                <td>ZSON</td>
-                                <td>✓</td>
-                                <td>✗</td>
-                                <td>✗</td>
-                                <td>25.5</td>
-                                <td>12.6</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>15.3</td>
-                                <td>4.8</td>
-                            </tr>
-                            <tr>
-                                <td>PSL</td>
-                                <td>✓</td>
-                                <td>✗</td>
-                                <td>✗</td>
-                                <td>42.4</td>
-                                <td>19.2</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                            </tr>
-                            <tr>
-                                <td>Pixel-Nav</td>
-                                <td>✓</td>
-                                <td>✗</td>
-                                <td>✗</td>
-                                <td>37.9</td>
-                                <td>20.5</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                            </tr>
-                            <tr>
-                                <td>SGM</td>
-                                <td>✓</td>
-                                <td>✗</td>
-                                <td>✗</td>
-                                <td>60.2</td>
-                                <td>30.8</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>37.7</td>
-                                <td>14.7</td>
-                            </tr>
-                            <tr>
-                                <td>ImagineNav</td>
-                                <td>✓</td>
-                                <td>✗</td>
-                                <td>✗</td>
-                                <td>53.0</td>
-                                <td>23.8</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                            </tr>
-                            <tr>
-                                <td>CoW</td>
-                                <td>✓</td>
-                                <td>✓</td>
-                                <td>✗</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>7.4</td>
-                                <td>3.7</td>
-                            </tr>
-                            <tr>
-                                <td>ESC</td>
-                                <td>✓</td>
-                                <td>✓</td>
-                                <td>✗</td>
-                                <td>39.2</td>
-                                <td>22.3</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>28.7</td>
-                                <td>14.2</td>
-                            </tr>
-                            <tr>
-                                <td>L3MVN</td>
-                                <td>✓</td>
-                                <td>✓</td>
-                                <td>✗</td>
-                                <td>50.4</td>
-                                <td>23.1</td>
-                                <td>36.3</td>
-                                <td>15.7</td>
-                                <td>34.9</td>
-                                <td>14.5</td>
-                            </tr>
-                            <tr>
-                                <td>VLFM</td>
-                                <td>✓</td>
-                                <td>✓</td>
-                                <td>✗</td>
-                                <td>52.5</td>
-                                <td>30.4</td>
-                                <td>63.6</td>
-                                <td>32.5</td>
-                                <td>36.4</td>
-                                <td>17.5</td>
-                            </tr>
-                            <tr>
-                                <td>VoroNav</td>
-                                <td>✓</td>
-                                <td>✓</td>
-                                <td>✗</td>
-                                <td>42.0</td>
-                                <td>26.0</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                            </tr>
-                            <tr>
-                                <td>TopV-Nav</td>
-                                <td>✓</td>
-                                <td>✓</td>
-                                <td>✗</td>
-                                <td>52.0</td>
-                                <td>28.6</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>35.2</td>
-                                <td>16.4</td>
-                            </tr>
-                            <tr>
-                                <td>SG-Nav</td>
-                                <td>✓</td>
-                                <td>✓</td>
-                                <td>✗</td>
-                                <td>54.0</td>
-                                <td>24.9</td>
-                                <td>49.6</td>
-                                <td>25.5</td>
-                                <td>40.2</td>
-                                <td>16.0</td>
-                            </tr>
-                            <tr class="highlight-row">
-                                <td><strong>DORAEMON (Ours)</strong></td>
-                                <td><strong>✓</strong></td>
-                                <td><strong>✓</strong></td>
-                                <td><strong>✓</strong></td>
-                                <td><strong>55.6</strong></td>
-                                <td><strong>21.4</strong></td>
-                                <td><strong>66.5</strong></td>
-                                <td><strong>20.6</strong></td>
-                                <td><strong>41.1</strong></td>
-                                <td><strong>15.8</strong></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="comprehensive-table-wrapper">
+                    <div class="table-scroll-container">
+                        <table class="comprehensive-table">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">Method</th>
+                                    <th>ZS</th>
+                                    <th>TF</th>
+                                    <th>E2E</th>
+                                    <th colspan="2">HM3Dv1</th>
+                                    <th colspan="2">HM3Dv2</th>
+                                    <th colspan="2">MP3D</th>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th>SR(%) ↑</th>
+                                    <th>SPL(%) ↑</th>
+                                    <th>SR(%) ↑</th>
+                                    <th>SPL(%) ↑</th>
+                                    <th>SR(%) ↑</th>
+                                    <th>SPL(%) ↑</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>ProcTHOR</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>54.4</td>
+                                    <td>31.8</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>SemEXP</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>36.0</td>
+                                    <td>14.4</td>
+                                </tr>
+                                <tr>
+                                    <td>Habitat-Web</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>41.5</td>
+                                    <td>16.0</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>31.6</td>
+                                    <td>8.5</td>
+                                </tr>
+                                <tr>
+                                    <td>PONI</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>31.8</td>
+                                    <td>12.1</td>
+                                </tr>
+                                <tr>
+                                    <td>ProcTHOR-ZS</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>13.2</td>
+                                    <td>7.7</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>ZSON</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>25.5</td>
+                                    <td>12.6</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>15.3</td>
+                                    <td>4.8</td>
+                                </tr>
+                                <tr>
+                                    <td>PSL</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>42.4</td>
+                                    <td>19.2</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>Pixel-Nav</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>37.9</td>
+                                    <td>20.5</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>SGM</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>60.2</td>
+                                    <td>30.8</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>37.7</td>
+                                    <td>14.7</td>
+                                </tr>
+                                <tr>
+                                    <td>ImagineNav</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>53.0</td>
+                                    <td>23.8</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>CoW</td>
+                                    <td>✓</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>7.4</td>
+                                    <td>3.7</td>
+                                </tr>
+                                <tr>
+                                    <td>ESC</td>
+                                    <td>✓</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>39.2</td>
+                                    <td>22.3</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>28.7</td>
+                                    <td>14.2</td>
+                                </tr>
+                                <tr>
+                                    <td>L3MVN</td>
+                                    <td>✓</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>50.4</td>
+                                    <td>23.1</td>
+                                    <td>36.3</td>
+                                    <td>15.7</td>
+                                    <td>34.9</td>
+                                    <td>14.5</td>
+                                </tr>
+                                <tr>
+                                    <td>VLFM</td>
+                                    <td>✓</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>52.5</td>
+                                    <td>30.4</td>
+                                    <td>63.6</td>
+                                    <td>32.5</td>
+                                    <td>36.4</td>
+                                    <td>17.5</td>
+                                </tr>
+                                <tr>
+                                    <td>VoroNav</td>
+                                    <td>✓</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>42.0</td>
+                                    <td>26.0</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>TopV-Nav</td>
+                                    <td>✓</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>52.0</td>
+                                    <td>28.6</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>35.2</td>
+                                    <td>16.4</td>
+                                </tr>
+                                <tr>
+                                    <td>SG-Nav</td>
+                                    <td>✓</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>54.0</td>
+                                    <td>24.9</td>
+                                    <td>49.6</td>
+                                    <td>25.5</td>
+                                    <td>40.2</td>
+                                    <td>16.0</td>
+                                </tr>
+                                <tr class="highlight-row">
+                                    <td><strong>DORAEMON (Ours)</strong></td>
+                                    <td><strong>✓</strong></td>
+                                    <td><strong>✓</strong></td>
+                                    <td><strong>✓</strong></td>
+                                    <td><strong>55.6</strong></td>
+                                    <td><strong>21.4</strong></td>
+                                    <td><strong>66.5</strong></td>
+                                    <td><strong>20.6</strong></td>
+                                    <td><strong>41.1</strong></td>
+                                    <td><strong>15.8</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>
+    </main>
 
     <!-- Footer -->
     <footer class="footer">
