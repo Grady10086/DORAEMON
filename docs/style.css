@@ -111,7 +111,7 @@ body {
 
 .btn-primary {
     background-color: #ffffff;
-    color: #4f46e5;
+    color: #FFD700;
 }
 
 .btn-primary:hover {
@@ -245,7 +245,7 @@ main {
 }
 
 .method-figure {
-    max-width: 100%;
+    max-width: 80%;
     height: auto;
     border-radius: 8px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
@@ -893,8 +893,8 @@ img {
 }
 
 .doraemon-icon {
-    width: 60px;
-    height: 60px;
+    width: 10px;
+    height: 10px;
     object-fit: contain;
 }
 
