@@ -111,7 +111,7 @@ body {
 
 .btn-primary {
     background-color: #ffffff;
-    color: #FFD700;
+    color: #4f46e5;
 }
 
 .btn-primary:hover {
@@ -895,9 +895,14 @@ img {
 }
 
 .doraemon-icon {
-    width: 30px;
-    height: 30px;
+    width: 45px;  /* 按照您的要求调整为六分之一 */
+    height: 45px;
     object-fit: contain;
+    background: transparent; /* 确保背景透明 */
+    border: none; /* 去掉边框 */
+    padding: 0; /* 去掉内边距 */
+    margin: 0; /* 去掉外边距 */
+    display: block; /* 确保是块级元素 */
 }
 
 .hero-title {
