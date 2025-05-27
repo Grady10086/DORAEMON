@@ -667,3 +667,92 @@ main {
         padding: 8px 4px;
     }
 }
+
+/* Method Overview */
+.method-overview {
+    max-width: 1000px;
+    margin: 40px auto 0;
+    text-align: center;
+}
+
+.method-overview p {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    color: #6b7280;
+}
+
+.method-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.method-item {
+    background: #f9fafb;
+    padding: 25px;
+    border-radius: 12px;
+    transition: transform 0.3s ease;
+}
+
+.method-item:hover {
+    transform: translateY(-5px);
+}
+
+.method-item h4 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    color: #1f2937;
+}
+
+.method-item p {
+    color: #6b7280;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* Demo Grid Updates */
+.demo-item h4 {
+    padding: 15px 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+    text-align: center;
+}
+
+.demo-item p {
+    display: none; /* Remove descriptions as requested */
+}
+
+/* Table improvements */
+.improvement-row {
+    background-color: #f0fdf4;
+    font-style: italic;
+    color: #166534;
+}
+
+.results-table {
+    margin-bottom: 20px;
+}
+
+/* Ensure tables display properly */
+.table-container {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.table-wrapper {
+    flex: 1;
+}
+
+@media (max-width: 768px) {
+    .table-container {
+        flex-direction: column;
+    }
+    
+    .method-grid {
+        grid-template-columns: 1fr;
+    }
+}
