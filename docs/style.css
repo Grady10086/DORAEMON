@@ -546,3 +546,124 @@ main {
         font-size: 2rem;
     }
 }
+
+/* Results Tables */
+.results-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.results-container h3 {
+    font-size: 1.8rem;
+    margin: 40px 0 30px 0;
+    text-align: center;
+    color: #1f2937;
+}
+
+.table-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.table-wrapper h4 {
+    text-align: center;
+    margin-bottom: 15px;
+    color: #4f46e5;
+    font-size: 1.1rem;
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    font-size: 0.9rem;
+}
+
+.results-table th,
+.results-table td {
+    padding: 12px 8px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.results-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #374151;
+}
+
+.results-table .highlight-row {
+    background-color: #f0f4ff;
+    font-weight: 600;
+}
+
+.comprehensive-table-container {
+    overflow-x: auto;
+    margin-top: 30px;
+}
+
+.comprehensive-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    font-size: 0.85rem;
+    min-width: 800px;
+}
+
+.comprehensive-table th,
+.comprehensive-table td {
+    padding: 10px 8px;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+}
+
+.comprehensive-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #374151;
+}
+
+.comprehensive-table .highlight-row {
+    background-color: #f0f4ff;
+    font-weight: 600;
+}
+
+/* Remove icons from features */
+.feature-icon {
+    display: none;
+}
+
+.feature-item {
+    text-align: center;
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 12px;
+    transition: transform 0.3s ease;
+}
+
+/* Responsive tables */
+@media (max-width: 768px) {
+    .table-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .results-table,
+    .comprehensive-table {
+        font-size: 0.8rem;
+    }
+    
+    .results-table th,
+    .results-table td,
+    .comprehensive-table th,
+    .comprehensive-table td {
+        padding: 8px 4px;
+    }
+}

@@ -14,7 +14,6 @@
         <div class="container">
             <h1 class="hero-title">DORAEMON</h1>
             <h2 class="hero-subtitle">Decentralized Ontology-aware Reliable Agent with Enhanced Memory Oriented Navigation</h2>
-            <p class="hero-description">A Cognitive-Inspired Framework for Zero-Shot Autonomous Navigation</p>
             
             <!-- Author Information -->
             <div class="authors">
@@ -124,37 +123,26 @@
             <!-- Key Features -->
             <div class="features-grid">
                 <div class="feature-item">
-                    <div class="feature-icon">🧠</div>
-                    <h4>Cognitive Architecture</h4>
-                    <p>Dual-stream processing inspired by human navigation capabilities</p>
-                </div>
-                
-                <div class="feature-item">
-                    <div class="feature-icon">🗺️</div>
                     <h4>Spatial Reasoning</h4>
                     <p>Hierarchical semantic-spatial fusion with topology mapping</p>
                 </div>
                 
                 <div class="feature-item">
-                    <div class="feature-icon">🔍</div>
                     <h4>Memory Enhancement</h4>
                     <p>RAG-based memory system for improved decision making</p>
                 </div>
                 
                 <div class="feature-item">
-                    <div class="feature-icon">🛡️</div>
                     <h4>Nav-Ensurance</h4>
                     <p>Safety and efficiency monitoring with adaptive correction</p>
                 </div>
                 
                 <div class="feature-item">
-                    <div class="feature-icon">🎯</div>
                     <h4>AORI Metric</h4>
                     <p>Novel evaluation metric for navigation intelligence assessment</p>
                 </div>
                 
                 <div class="feature-item">
-                    <div class="feature-icon">⚡</div>
                     <h4>Zero-Shot</h4>
                     <p>No prior map building or environment-specific training required</p>
                 </div>
@@ -244,23 +232,167 @@
                 DORAEMON achieves state-of-the-art performance across multiple benchmarks, demonstrating superior navigation capabilities and intelligence.
             </p>
             
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-icon">🏠</div>
-                    <h3>HM3D Dataset</h3>
-                    <p>Significant improvements in Success Rate (SR) and Success weighted by Path Length (SPL) on the largest indoor navigation benchmark</p>
+            <!-- Results Tables -->
+            <div class="results-container">
+                <h3>End-to-End Methods Comparison</h3>
+                <div class="table-container">
+                    <div class="table-wrapper">
+                        <h4>HM3Dv2 ObjectNav Benchmark</h4>
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>SR (%) ↑</th>
+                                    <th>SPL (%) ↑</th>
+                                    <th>AORI (%) ↓</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Prompt-only</td>
+                                    <td>29.8</td>
+                                    <td>0.107</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>PIVOT</td>
+                                    <td>24.6</td>
+                                    <td>10.6</td>
+                                    <td>63.3</td>
+                                </tr>
+                                <tr>
+                                    <td>VLMNav</td>
+                                    <td>51.6</td>
+                                    <td>18.3</td>
+                                    <td>61.5</td>
+                                </tr>
+                                <tr class="highlight-row">
+                                    <td><strong>DORAEMON (Ours)</strong></td>
+                                    <td><strong>62.0</strong></td>
+                                    <td><strong>23.0</strong></td>
+                                    <td><strong>50.1</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <h4>GOAT Benchmark</h4>
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>SR (%) ↑</th>
+                                    <th>SPL (%) ↑</th>
+                                    <th>AORI (%) ↓</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Prompt-only</td>
+                                    <td>11.3</td>
+                                    <td>3.7</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>PIVOT</td>
+                                    <td>8.3</td>
+                                    <td>3.8</td>
+                                    <td>64.9</td>
+                                </tr>
+                                <tr>
+                                    <td>VLMNav</td>
+                                    <td>22.1</td>
+                                    <td>9.3</td>
+                                    <td>63.6</td>
+                                </tr>
+                                <tr class="highlight-row">
+                                    <td><strong>DORAEMON (Ours)</strong></td>
+                                    <td><strong>24.3</strong></td>
+                                    <td><strong>10.3</strong></td>
+                                    <td><strong>56.9</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                
-                <div class="result-item">
-                    <div class="result-icon">🏢</div>
-                    <h3>MP3D Dataset</h3>
-                    <p>Outstanding performance in complex multi-room navigation scenarios with photorealistic environments</p>
-                </div>
-                
-                <div class="result-item">
-                    <div class="result-icon">🎯</div>
-                    <h3>GOAT Dataset</h3>
-                    <p>Superior zero-shot navigation capabilities on goal-oriented autonomous tasks without prior training</p>
+
+                <h3>Comprehensive Comparison with State-of-the-Art Methods</h3>
+                <div class="comprehensive-table-container">
+                    <table class="comprehensive-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2">Method</th>
+                                <th>ZS</th>
+                                <th>TF</th>
+                                <th>E2E</th>
+                                <th colspan="2">HM3Dv1</th>
+                                <th colspan="2">HM3Dv2</th>
+                                <th colspan="2">MP3D</th>
+                            </tr>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th>SR(%) ↑</th>
+                                <th>SPL(%) ↑</th>
+                                <th>SR(%) ↑</th>
+                                <th>SPL(%) ↑</th>
+                                <th>SR(%) ↑</th>
+                                <th>SPL(%) ↑</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>SGM</td>
+                                <td>✓</td>
+                                <td>✗</td>
+                                <td>✗</td>
+                                <td>60.2</td>
+                                <td>30.8</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>37.7</td>
+                                <td>14.7</td>
+                            </tr>
+                            <tr>
+                                <td>VLFM</td>
+                                <td>✓</td>
+                                <td>✓</td>
+                                <td>✗</td>
+                                <td>52.5</td>
+                                <td>30.4</td>
+                                <td>63.6</td>
+                                <td>32.5</td>
+                                <td>36.4</td>
+                                <td>17.5</td>
+                            </tr>
+                            <tr>
+                                <td>SG-Nav</td>
+                                <td>✓</td>
+                                <td>✓</td>
+                                <td>✗</td>
+                                <td>54.0</td>
+                                <td>24.9</td>
+                                <td>49.6</td>
+                                <td>25.5</td>
+                                <td>40.2</td>
+                                <td>16.0</td>
+                            </tr>
+                            <tr class="highlight-row">
+                                <td><strong>DORAEMON (Ours)</strong></td>
+                                <td><strong>✓</strong></td>
+                                <td><strong>✓</strong></td>
+                                <td><strong>✓</strong></td>
+                                <td><strong>55.6</strong></td>
+                                <td><strong>21.4</strong></td>
+                                <td><strong>66.5</strong></td>
+                                <td><strong>20.6</strong></td>
+                                <td><strong>41.1</strong></td>
+                                <td><strong>15.8</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
