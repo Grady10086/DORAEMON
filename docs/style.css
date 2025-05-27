@@ -211,6 +211,7 @@ main {
     height: auto;
     border-radius: 12px;
     box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+    margin: 0 auto;
 }
 
 /* Abstract Content */
@@ -249,6 +250,7 @@ main {
     height: auto;
     border-radius: 8px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin: 0 auto;
 }
 
 .figure-caption {
@@ -893,8 +895,8 @@ img {
 }
 
 .doraemon-icon {
-    width: 10px;
-    height: 10px;
+    width: 30px;
+    height: 30px;
     object-fit: contain;
 }
 
