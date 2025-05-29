@@ -138,3 +138,13 @@ If you find our work useful, please cite:
       primaryClass={cs.RO},
       url={https://arxiv.org/abs/2505.21969}, 
 }
+
+📫 Contact
+For questions about this work, please contact:
+
+Tianjun Gu: TianjunGu_Grady@outlook.com
+Project Page: https://grady10086.github.io/DORAEMON/
+<p align="center"> 
+<img src="https://img.shields.io/github/stars/Grady10086/DORAEMON?style=social" alt="GitHub stars"> 
+<img src="https://img.shields.io/github/forks/Grady10086/DORAEMON?style=social" alt="GitHub forks"> 
+</p>
