@@ -139,7 +139,7 @@ If you find our work useful, please cite:
       url={https://arxiv.org/abs/2505.21969}, 
 }
 
-📫 Contact
+## 📫 Contact
 For questions about this work, please contact:
 
 Tianjun Gu: TianjunGu_Grady@outlook.com
