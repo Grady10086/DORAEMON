@@ -1,12 +1,6 @@
 <h1 align="center">🔔 DORAEMON: Decentralized Ontology-aware Reliable Agent with Enhanced Memory Oriented Navigation</a>
 </h1>
 
-<p align="center">
-  <a href="https://arxiv.org/abs/2505.21969"><img src="https://img.shields.io/badge/arXiv-2505.21969-b31b1b.svg" alt="Paper"></a>
-  <a href="https://grady10086.github.io/DORAEMON/"><img src="https://img.shields.io/badge/Project-Page-green.svg" alt="Project Page"></a>
-  <a href="#-citation"><img src="https://img.shields.io/badge/Citation-BibTeX-blue.svg" alt="Citation"></a>
-</p>
-
 ## 📚 Contents
 - [Abstract](#Abstract)
 - [Update](#Update)
@@ -124,29 +118,3 @@ Run `python scripts/main.py` to visualize the result of an episode.
 
 To evaluate DORAEMON, we use a framework for parallel evaluation (HM3D v0.1 contains 1000 episodes, 2000 episodes for HM3D v0.2 and 2195 episodes for MP3D). The file `parallel_gpu0.sh` contains a script to distribute K instances over N GPUs, and for each of them to run M episodes. A local flask server is initialized to handle the data aggregation, and then the aggregated results are logged to wandb. Make sure you are logged in with `wandb login`.
 
-## 📖 Citation
-
-If you find our work useful, please cite:
-
-```bibtex
-@misc{gu2025doraemondecentralizedontologyawarereliable,
-      title={DORAEMON: Decentralized Ontology-aware Reliable Agent with Enhanced Memory Oriented Navigation}, 
-      author={Tianjun Gu and Linfeng Li and Xuhong Wang and Chenghua Gong and Jingyu Gong and Zhizhong Zhang and Yuan Xie and Lizhuang Ma and Xin Tan},
-      year={2025},
-      eprint={2505.21969},
-      archivePrefix={arXiv},
-      primaryClass={cs.RO},
-      url={https://arxiv.org/abs/2505.21969}, 
-}
-```
-
-## 📫 Contact
-For questions about this work, please contact:
-
-Tianjun Gu: TianjunGu_Grady@outlook.com
-
-Project Page: https://grady10086.github.io/DORAEMON/
-<p align="center"> 
-<img src="https://img.shields.io/github/stars/Grady10086/DORAEMON?style=social" alt="GitHub stars"> 
-<img src="https://img.shields.io/github/forks/Grady10086/DORAEMON?style=social" alt="GitHub forks"> 
-</p>
