@@ -1,152 +1,686 @@
-<h1 align="center">🔔 DORAEMON: Decentralized Ontology-aware Reliable Agent with Enhanced Memory Oriented Navigation</a>
-</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DORAEMON: Decentralized Ontology-aware Reliable Agent with Enhanced Memory Oriented Navigation</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-title-container">
+                <img src="doraemon_icon.png" alt="Doraemon Icon" class="doraemon-icon">
+                <h1 class="hero-title">DORAEMON</h1>
+            </div>
+            <h2 class="hero-subtitle">Decentralized Ontology-aware Reliable Agent with Enhanced Memory&nbsp;Oriented&nbsp;Navigation</h2>
+            
+            <!-- Author Information -->
+            <div class="authors">
+                <div class="author-names">
+                    <span class="author">Tianjun Gu<sup>1</sup></span>
+                    <span class="author">Linfeng Li<sup>1</sup></span>
+                    <span class="author">Xuhong Wang<sup>2</sup></span>
+                    <span class="author">Chenghua Gong<sup>1</sup></span>
+                    <span class="author">Jingyu Gong<sup>1</sup></span>
+                    <span class="author">Zhizhong Zhang<sup>1</sup></span>
+                    <span class="author">Yuan Xie<sup>1,3</sup></span>
+                    <span class="author">Lizhuang Ma<sup>1</sup></span>
+                    <span class="author">Xin Tan<sup>1,2</sup></span>
+                </div>
+                <div class="affiliations">
+                    <div class="affiliation"><sup>1</sup>East China Normal University</div>
+                    <div class="affiliation"><sup>2</sup>Shanghai AI Lab</div>
+                    <div class="affiliation"><sup>3</sup>Shanghai Innovation Institute</div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="https://github.com/Grady10086/DORAEMON" class="btn btn-primary" target="_blank">
+                    <i class="fab fa-github"></i> Code
+                </a>
+                <a href="https://arxiv.org/abs/2505.21969" class="btn btn-secondary" target="_blank">
+                    <i class="fas fa-file-pdf"></i> Paper
+                </a>
+                <a href="#demo" class="btn btn-accent">
+                    <i class="fas fa-play"></i> Demo
+                </a>
+            </div>
+        </div>
+    </section>
 
-<p align="center">
-  <a href="https://arxiv.org/abs/2505.21969"><img src="https://img.shields.io/badge/arXiv-2505.21969-b31b1b.svg" alt="Paper"></a>
-  <a href="https://grady10086.github.io/DORAEMON/"><img src="https://img.shields.io/badge/Project-Page-green.svg" alt="Project Page"></a>
-  <a href="#-citation"><img src="https://img.shields.io/badge/Citation-BibTeX-blue.svg" alt="Citation"></a>
-</p>
+    <!-- Navigation -->
+    <nav class="sticky-nav">
+        <div class="container">
+            <a href="#overview">Overview</a>
+            <a href="#method">Method</a>
+            <a href="#demo">Demo</a>
+            <a href="#results">Results</a>
+        </div>
+    </nav>
 
-## 📚 Contents
-- [Abstract](#Abstract)
-- [Update](#Update)
-- [Demo](#Demo)
-- [Get Started](#Get-Started)
-- [Evaluation](#Evaluation)
-- [Citation](#Citation)
+    <main class="container">
+        <!-- Overview Section -->
+        <section id="overview" class="section">
+            <h2>Overview</h2>
+            
+            <!-- Teaser Image -->
+            <div class="teaser-container">
+                <img src="fig1.png" alt="DORAEMON Teaser" class="teaser-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div class="image-placeholder" style="display:none;">
+                    <p>Teaser Image (fig1.png) - Loading...</p>
+                </div>
+            </div>
+            
+            <div class="abstract-content">
+                <p>
+                    Adaptive navigation in unfamiliar environments is crucial for household service robots but remains challenging due to the need for both low-level path planning and high-level scene understanding. While recent vision-language model (VLM) based zero-shot approaches reduce dependence on prior maps and scene-specific training data, they face significant limitations: spatiotemporal discontinuity from discrete observations, unstructured memory representations, and insufficient task understanding leading to navigation failures.
+                </p>
+                <p>
+                    We propose <strong>DORAEMON</strong> (Decentralized Ontology-aware Reliable Agent with Enhanced Memory Oriented Navigation), a novel cognitive-inspired framework consisting of Ventral and Dorsal Streams that mimics human navigation capabilities. The Dorsal Stream implements the Hierarchical Semantic-Spatial Fusion and Topology Map to handle spatiotemporal discontinuities, while the Ventral Stream combines RAG-VLM and Policy-VLM to improve decision-making. Our approach also develops Nav-Ensurance to ensure navigation safety and efficiency.
+                </p>
+                <p>
+                    We evaluate DORAEMON on the HM3D, MP3D, and GOAT datasets, where it achieves state-of-the-art performance on both success rate (SR) and success weighted by path length (SPL) metrics, significantly outperforming existing methods. We also introduce a new evaluation metric (AORI) to assess navigation intelligence better.
+                </p>
+            </div>
+        </section>
 
-## ✨ Abstract
-Adaptive navigation in unfamiliar environments is crucial for household service robots but remains challenging due to the need for both low-level path planning and high-level scene understanding. While recent vision-language model (VLM) based zero-shot approaches reduce dependence on prior maps and scene-specific training data, they face significant limitations: spatiotemporal discontinuity from discrete observations, unstructured memory representations, and insufficient task understanding leading to navigation failures. We propose DORAEMON (Decentralized Ontology-aware Reliable Agent with Enhanced Memory Oriented Navigation), a novel cognitive-inspired framework consisting of Ventral and Dorsal Streams that mimics human navigation capabilities. The Dorsal Stream implements the Hierarchical Semantic-Spatial Fusion and Topology Map to handle spatiotemporal discontinuities, while the Ventral Stream combines RAG-VLM and Policy-VLM to improve decision-making. Our approach also develop Nav-Ensurance to ensure navigation safety and efficiency.
+        <!-- Method Section -->
+        <section id="method" class="section">
+            <h2>Method</h2>
+            
+            <!-- Overall Architecture -->
+            <div class="method-subsection">
+                <h3>Overall Architecture</h3>
+                <div class="figure-container">
+                    <img src="fig2.png" alt="Overall Architecture" class="method-figure" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="image-placeholder" style="display:none;">
+                        <p>Overall Architecture (fig2.png) - Loading...</p>
+                    </div>
+                </div>
+                <p class="figure-caption">
+                    DORAEMON employs a decentralized ontology-awarearchitecture inspired by human navigation systems, featuring coordinated Dorsal and Ventral streams with Nav-Ensurance for robust navigation.
+                </p>
+            </div>
 
-## 💥 Update
-🔥 We've reorganized and cleaned up the repository to ensure a clear, well-structured codebase. Please give the training and inference scripts a try, and feel free to leave an issue if you run into any problems. We apologize for any confusion caused by our original codebase release. `5.15, 2025`
+            <!-- Dorsal Stream -->
+            <div class="method-subsection">
+                <h3>Dorsal Stream</h3>
+                <div class="figure-container">
+                    <img src="fig3.png" alt="Dorsal Stream" class="method-figure" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="image-placeholder" style="display:none;">
+                        <p>Dorsal Stream (fig3.png) - Loading...</p>
+                    </div>
+                </div>
+                <p class="figure-caption">
+                    The Dorsal Stream handles spatial processing through Hierarchical Semantic-Spatial Fusion and Topology Mapping, addressing spatiotemporal discontinuities in navigation.
+                </p>
+            </div>
 
-🔥 We've released some demos. `5.22, 2025`
+            <!-- Ventral Stream -->
+            <div class="method-subsection">
+                <h3>Ventral Stream</h3>
+                <div class="figure-container">
+                    <img src="fig4.png" alt="Ventral Stream" class="method-figure" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="image-placeholder" style="display:none;">
+                        <p>Ventral Stream (fig4.png) - Loading...</p>
+                    </div>
+                </div>
+                <p class="figure-caption">
+                    The Ventral Stream manages object recognition and decision-making through RAG-VLM (Retrieval-Augmented Generation with Vision-Language Models) and Policy-VLM components.
+                </p>
+            </div>
+        </section>
 
-## 📺 Demo
+        <!-- Demo Section -->
+        <section id="demo" class="section">
+            <h2>📺 Demo</h2>
+            
+            <div class="demo-grid">
+                <div class="demo-item">
+                    <div class="demo-image-container">
+                        <img src="demos/case1.gif" alt="SOFA Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>🛋️ Demo Loading...</span>
+                        </div>
+                    </div>
+                    <h4>🛋️ SOFA</h4>
+                </div>
+                
+                <div class="demo-item">
+                    <div class="demo-image-container">
+                        <img src="demos/case2.gif" alt="TABLE Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>🟦 Demo Loading...</span>
+                        </div>
+                    </div>
+                    <h4>🟦 TABLE</h4>
+                </div>
+                
+                <div class="demo-item">
+                    <div class="demo-image-container">
+                        <img src="demos/case3.gif" alt="BED Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>🛏️ Demo Loading...</span>
+                        </div>
+                    </div>
+                    <h4>🛏️ BED</h4>
+                </div>
+                
+                <div class="demo-item">
+                    <div class="demo-image-container">
+                        <img src="demos/case4.gif" alt="PLANT Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>🌳 Demo Loading...</span>
+                        </div>
+                    </div>
+                    <h4>🌳 PLANT</h4>
+                </div>
+                
+                <div class="demo-item">
+                    <div class="demo-image-container">
+                        <img src="demos/case5-min.gif" alt="CABINET Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>🗄️ Demo Loading...</span>
+                        </div>
+                    </div>
+                    <h4>🗄️ CABINET</h4>
+                </div>
+                
+                <div class="demo-item">
+                    <div class="demo-image-container">
+                        <img src="demos/case6.gif" alt="CHAIR Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>💺 Demo Loading...</span>
+                        </div>
+                    </div>
+                    <h4>💺 CHAIR</h4>
+                </div>
 
-🛋️ SOFA
-![Demo1](https://github.com/Grady10086/DORAEMON/blob/master/demos/case1.gif)
+                <div class="demo-item">
+                    <div class="demo-image-container">
+                        <img src="demos/case7.gif" alt="PLANT Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>🌳 Demo Loading...</span>
+                        </div>
+                    </div>
+                    <h4>🌳 PLANT</h4>
+                </div>
 
-🟦 TABLE
-![Demo2](https://github.com/Grady10086/DORAEMON/blob/master/demos/case2.gif)
+                <div class="demo-item">
+                    <div class="demo-image-container">
+                        <img src="demos/case8.gif" alt="SOFA Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>🛋️ Demo Loading...</span>
+                        </div>
+                    </div>
+                    <h4>🛋️ SOFA</h4>
+                </div>
 
-🛏️ BED
-![Demo3](https://github.com/Grady10086/DORAEMON/blob/master/demos/case3.gif)
+                <div class="demo-item">
+                    <div class="demo-image-container">
+                        <img src="demos/case9.gif" alt="TV Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>📺 Demo Loading...</span>
+                        </div>
+                    </div>
+                    <h4>📺 TV</h4>
+                </div>
 
-🌳 PLANT
-![Demo4](https://github.com/Grady10086/DORAEMON/blob/master/demos/case4.gif)
+                <div class="demo-item">
+                    <div class="demo-image-container">
+                        <img src="demos/case10.gif" alt="TOILET Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>🚽 Demo Loading...</span>
+                        </div>
+                    </div>
+                    <h4>🚽 TOILET</h4>
+                </div>
 
-🗄️ CABINET
-![Demo5](https://github.com/Grady10086/DORAEMON/blob/master/demos/case5-min.gif)
+                <div class="demo-item">
+                    <div class="demo-image-container">
+                        <img src="demos/case11.gif" alt="SOFA Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>🛋️ Demo Loading...</span>
+                        </div>
+                    </div>
+                    <h4>🛋️ SOFA</h4>
+                </div>
 
-💺 CHAIR
-![Demo6](https://github.com/Grady10086/DORAEMON/blob/master/demos/case6.gif)
+                <div class="demo-item">
+                    <div class="demo-image-container">
+                        <img src="demos/case12.gif" alt="CHAIR Navigation" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="demo-placeholder" style="display:none;">
+                            <span>💺 Demo Loading...</span>
+                        </div>
+                    </div>
+                    <h4>💺 CHAIR</h4>
+                </div>
+            </div>
+        </section>
 
-🌳 PLANT
-![Demo7](https://github.com/Grady10086/DORAEMON/blob/master/demos/case7.gif)
+        <!-- Results Section -->
+        <section id="results" class="section">
+            <h2>Results</h2>
+            <p class="section-description">
+                DORAEMON achieves state-of-the-art performance across multiple benchmarks, demonstrating superior navigation capabilities and intelligence.
+            </p>
+            
+            <!-- Results Tables -->
+            <div class="results-container">
+                <h3>End-to-End Methods Comparison</h3>
+                <div class="table-container">
+                    <div class="table-wrapper">
+                        <h4>(a) HM3Dv2 ObjectNav Benchmark</h4>
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>SR (%) ↑</th>
+                                    <th>SPL (%) ↑</th>
+                                    <th>AORI (%) ↓</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Prompt-only</td>
+                                    <td>29.8</td>
+                                    <td>0.107</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>PIVOT</td>
+                                    <td>24.6</td>
+                                    <td>10.6</td>
+                                    <td>63.3</td>
+                                </tr>
+                                <tr>
+                                    <td>VLMNav</td>
+                                    <td>51.6</td>
+                                    <td>18.3</td>
+                                    <td>61.5</td>
+                                </tr>
+                                <tr class="highlight-row">
+                                    <td><strong>DORAEMON (Ours)</strong></td>
+                                    <td><strong>62.0</strong></td>
+                                    <td><strong>23.0</strong></td>
+                                    <td><strong>50.1</strong></td>
+                                </tr>
+                                <tr class="improvement-row">
+                                    <td><em>Improvement</em></td>
+                                    <td><em>20.2</em></td>
+                                    <td><em>10.0</em></td>
+                                    <td><em>18.5</em></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <h4>(b) GOAT Benchmark</h4>
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>SR (%) ↑</th>
+                                    <th>SPL (%) ↑</th>
+                                    <th>AORI (%) ↓</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Prompt-only</td>
+                                    <td>11.3</td>
+                                    <td>3.7</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>PIVOT</td>
+                                    <td>8.3</td>
+                                    <td>3.8</td>
+                                    <td>64.9</td>
+                                </tr>
+                                <tr>
+                                    <td>VLMNav</td>
+                                    <td>22.1</td>
+                                    <td>9.3</td>
+                                    <td>63.6</td>
+                                </tr>
+                                <tr class="highlight-row">
+                                    <td><strong>DORAEMON (Ours)</strong></td>
+                                    <td><strong>24.3</strong></td>
+                                    <td><strong>10.3</strong></td>
+                                    <td><strong>56.9</strong></td>
+                                </tr>
+                                <tr class="improvement-row">
+                                    <td><em>Improvement</em></td>
+                                    <td><em>10.0</em></td>
+                                    <td><em>10.8</em></td>
+                                    <td><em>10.5</em></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-🛋️ SOFA
-![Demo8](https://github.com/Grady10086/DORAEMON/blob/master/demos/case8.gif)
+                <h3>Comprehensive Comparison with State-of-the-Art Methods</h3>
+                <div class="comprehensive-table-wrapper">
+                    <div class="table-scroll-container">
+                        <table class="comprehensive-table">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">Method</th>
+                                    <th>ZS</th>
+                                    <th>TF</th>
+                                    <th>E2E</th>
+                                    <th colspan="2">HM3Dv1</th>
+                                    <th colspan="2">HM3Dv2</th>
+                                    <th colspan="2">MP3D</th>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th>SR(%) ↑</th>
+                                    <th>SPL(%) ↑</th>
+                                    <th>SR(%) ↑</th>
+                                    <th>SPL(%) ↑</th>
+                                    <th>SR(%) ↑</th>
+                                    <th>SPL(%) ↑</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>ProcTHOR</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>54.4</td>
+                                    <td>31.8</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>SemEXP</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>36.0</td>
+                                    <td>14.4</td>
+                                </tr>
+                                <tr>
+                                    <td>Habitat-Web</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>41.5</td>
+                                    <td>16.0</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>31.6</td>
+                                    <td>8.5</td>
+                                </tr>
+                                <tr>
+                                    <td>PONI</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>31.8</td>
+                                    <td>12.1</td>
+                                </tr>
+                                <tr>
+                                    <td>ProcTHOR-ZS</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>13.2</td>
+                                    <td>7.7</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>ZSON</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>25.5</td>
+                                    <td>12.6</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>15.3</td>
+                                    <td>4.8</td>
+                                </tr>
+                                <tr>
+                                    <td>PSL</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>42.4</td>
+                                    <td>19.2</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>Pixel-Nav</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>37.9</td>
+                                    <td>20.5</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>SGM</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>60.2</td>
+                                    <td>30.8</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>37.7</td>
+                                    <td>14.7</td>
+                                </tr>
+                                <tr>
+                                    <td>ImagineNav</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>✗</td>
+                                    <td>53.0</td>
+                                    <td>23.8</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>CoW</td>
+                                    <td>✓</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>7.4</td>
+                                    <td>3.7</td>
+                                </tr>
+                                <tr>
+                                    <td>ESC</td>
+                                    <td>✓</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>39.2</td>
+                                    <td>22.3</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>28.7</td>
+                                    <td>14.2</td>
+                                </tr>
+                                <tr>
+                                    <td>L3MVN</td>
+                                    <td>✓</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>50.4</td>
+                                    <td>23.1</td>
+                                    <td>36.3</td>
+                                    <td>15.7</td>
+                                    <td>34.9</td>
+                                    <td>14.5</td>
+                                </tr>
+                                <tr>
+                                    <td>VLFM</td>
+                                    <td>✓</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>52.5</td>
+                                    <td>30.4</td>
+                                    <td>63.6</td>
+                                    <td>32.5</td>
+                                    <td>36.4</td>
+                                    <td>17.5</td>
+                                </tr>
+                                <tr>
+                                    <td>VoroNav</td>
+                                    <td>✓</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>42.0</td>
+                                    <td>26.0</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>TopV-Nav</td>
+                                    <td>✓</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>52.0</td>
+                                    <td>28.6</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>35.2</td>
+                                    <td>16.4</td>
+                                </tr>
+                                <tr>
+                                    <td>SG-Nav</td>
+                                    <td>✓</td>
+                                    <td>✓</td>
+                                    <td>✗</td>
+                                    <td>54.0</td>
+                                    <td>24.9</td>
+                                    <td>49.6</td>
+                                    <td>25.5</td>
+                                    <td>40.2</td>
+                                    <td>16.0</td>
+                                </tr>
+                                <tr class="highlight-row">
+                                    <td><strong>DORAEMON (Ours)</strong></td>
+                                    <td><strong>✓</strong></td>
+                                    <td><strong>✓</strong></td>
+                                    <td><strong>✓</strong></td>
+                                    <td><strong>55.6</strong></td>
+                                    <td>21.4</td>
+                                    <td><strong>66.5</strong></td>
+                                    <td>20.6</td>
+                                    <td><strong>41.1</strong></td>
+                                    <td>15.8</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 
-📺 TV
-![Demo9](https://github.com/Grady10086/DORAEMON/blob/master/demos/case9.gif)
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 DORAEMON Research Team. All Rights Reserved.</p>
+            <div class="footer-links">
+                <a href="https://github.com/Grady10086/DORAEMON" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+                <a href="#" target="_blank">
+                    <i class="fas fa-file-pdf"></i> Paper (Coming Soon)
+                </a>
+                <a href="#" onclick="showBibTeX()">
+                    <i class="fas fa-quote-right"></i> BibTeX
+                </a>
+            </div>
+        </div>
+    </footer>
 
-🚽 TOILET
-![Demo10](https://github.com/Grady10086/DORAEMON/blob/master/demos/case10.gif)
+    <!-- BibTeX Modal -->
+    <div id="bibtex-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeBibTeX()">&times;</span>
+            <h3>BibTeX Citation</h3>
+            <pre><code>@article{doraemon2025,
+  title   = {DORAEMON: Decentralized Ontology-aware Reliable Agent with Enhanced Memory Oriented Navigation},
+  author  = {Tianjun Gu and Linfeng Li and Xuhong Wang and Chenghua Gong and Jingyu Gong and Zhizhong Zhang and Yuan Xie and Lizhuang Ma and Xin Tan},
+  journal = {arXiv preprint},
+  year    = {2025},
+  url     = {https://github.com/Grady10086/DORAEMON}
+}</code></pre>
+        </div>
+    </div>
 
-🛋️ SOFA
-![Demo11](https://github.com/Grady10086/DORAEMON/blob/master/demos/case11.gif)
+    <script>
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
 
-💺 CHAIR
-![Demo12](https://github.com/Grady10086/DORAEMON/blob/master/demos/case12.gif)
+        // BibTeX Modal
+        function showBibTeX() {
+            document.getElementById("bibtex-modal").style.display = "block";
+        }
 
-## 🚀 Get Started
+        function closeBibTeX() {
+            document.getElementById("bibtex-modal").style.display = "none";
+        }
 
-### ⚙️ Installation and Setup
-1. Clone this repo.
-
-2. Create the conda environment and install all dependencies.
-    ```bash
-    conda create -n doraemon python=3.9 cmake=3.14.0
-    conda activate doraemon
-    conda install habitat-sim=0.3.1 withbullet headless -c conda-forge -c aihabitat
-    pip install -r requirements.txt
-    ```
-   
-### 🛢 Prepare Dataset
-This project is based on [Habitat simulator](https://aihabitat.org/) and the HM3D and MP3D datasets are available [here](https://github.com/facebookresearch/habitat-sim/blob/main/DATASETS.md).
-Our code requires all above data to be in a data folder in the following format. Move the downloaded HM3D v0.1, HM3D v0.2 and MP3D folders into the following configuration:
-
-```
-├── <DATASET_ROOT>
-│  ├── hm3d_v0.1/
-│  │  ├── val/
-│  │  │  ├── 00800-TEEsavR23oF/
-│  │  │  │  ├── TEEsavR23oF.navmesh
-│  │  │  │  ├── TEEsavR23oF.glb
-│  │  ├── hm3d_annotated_basis.scene_dataset_config.json
-│  ├── objectnav_hm3d_v0.1/
-│  │  ├── val/
-│  │  │  ├── content/
-│  │  │  │  ├──4ok3usBNeis.json.gz
-│  │  │  ├── val.json.gz
-│  ├── hm3d_v0.2/
-│  │  ├── val/
-│  │  │  ├── 00800-TEEsavR23oF/
-│  │  │  │  ├── TEEsavR23oF.basis.navmesh
-│  │  │  │  ├── TEEsavR23oF.basis.glb
-│  │  ├── hm3d_annotated_basis.scene_dataset_config.json
-│  ├── objectnav_hm3d_v0.2/
-│  │  ├── val/
-│  │  │  ├── content/
-│  │  │  │  ├──4ok3usBNeis.json.gz
-│  │  │  ├── val.json.gz
-│  ├── mp3d/
-│  │  ├── 17DRP5sb8fy/
-│  │  │  ├── 17DRP5sb8fy.glb
-│  │  │  ├── 17DRP5sb8fy.house
-│  │  │  ├── 17DRP5sb8fy.navmesh
-│  │  │  ├── 17DRP5sb8fy_semantic.ply
-│  │  ├── mmp3d.scene_dataset_config.json
-│  ├── objectnav_mp3d/
-│  │  ├── val/
-│  │  │  ├── content/
-│  │  │  │  ├──2azQ1b91cZZ.json.gz
-│  │  │  ├── val.json.gz
-```
-
-### 🔑 Prepare Gemini API
-You can set your own GeminiAPI key by `export GEMINI_API_KEY=xxx`
-
-### 📈 Evaluation
-Run `python scripts/main.py` to visualize the result of an episode.
-
-To evaluate DORAEMON, we use a framework for parallel evaluation (HM3D v0.1 contains 1000 episodes, 2000 episodes for HM3D v0.2 and 2195 episodes for MP3D). The file `parallel_gpu0.sh` contains a script to distribute K instances over N GPUs, and for each of them to run M episodes. A local flask server is initialized to handle the data aggregation, and then the aggregated results are logged to wandb. Make sure you are logged in with `wandb login`.
-
-## 📖 Citation
-
-If you find our work useful, please cite:
-
-```bibtex
-@misc{gu2025doraemondecentralizedontologyawarereliable,
-      title={DORAEMON: Decentralized Ontology-aware Reliable Agent with Enhanced Memory Oriented Navigation}, 
-      author={Tianjun Gu and Linfeng Li and Xuhong Wang and Chenghua Gong and Jingyu Gong and Zhizhong Zhang and Yuan Xie and Lizhuang Ma and Xin Tan},
-      year={2025},
-      eprint={2505.21969},
-      archivePrefix={arXiv},
-      primaryClass={cs.RO},
-      url={https://arxiv.org/abs/2505.21969}, 
-}
-```
-
-## 📫 Contact
-For questions about this work, please contact:
-
-Tianjun Gu: TianjunGu_Grady@outlook.com
-
-Project Page: https://grady10086.github.io/DORAEMON/
-<p align="center"> 
-<img src="https://img.shields.io/github/stars/Grady10086/DORAEMON?style=social" alt="GitHub stars"> 
-<img src="https://img.shields.io/github/forks/Grady10086/DORAEMON?style=social" alt="GitHub forks"> 
-</p>
+        window.onclick = function(event) {
+            const modal = document.getElementById("bibtex-modal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
