@@ -56,11 +56,11 @@ Adaptive navigation in unfamiliar environments is crucial for household service 
 ![Demo12](https://github.com/Grady10086/DORAEMON/blob/master/demos/case12.gif)
 
 🎬Real: an orange cushion that fell on the ground
-[![Click to watch the demo for 'orange cushion'](https://github.com/Grady10086/DORAEMON/blob/master/demos/real2.png)](https://github.com/Grady10086/DORAEMON/blob/master/demos/real1.mp4)
+[![Click to watch the demo for 'orange cushion'](https://github.com/Grady10086/DORAEMON/blob/master/demos/real2.jpg)](https://github.com/Grady10086/DORAEMON/blob/master/demos/real1.mp4)
 
 
 🎬Real: an orange cushion that fell on the ground
-[![Click to watch the demo for 'orange cushion'](https://github.com/Grady10086/DORAEMON/blob/master/demos/real1.png)](https://github.com/Grady10086/DORAEMON/blob/master/demos/real1.mp4)
+[![Click to watch the demo for 'orange cushion'](https://github.com/Grady10086/DORAEMON/blob/master/demos/real1.jpg)](https://github.com/Grady10086/DORAEMON/blob/master/demos/real1.mp4)
 
 
 ## 🚀 Get Started
