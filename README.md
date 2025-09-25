@@ -61,6 +61,12 @@ Adaptive navigation in unfamiliar environments is crucial for household service 
 💺 CHAIR
 ![Demo12](https://github.com/Grady10086/DORAEMON/blob/master/demos/case12.gif)
 
+🎬Real: white trash bin wrapped in a black garbage bag
+![Real2](https://github.com/Grady10086/DORAEMON/blob/master/demos/real2.mp4)
+
+🎬Real: an orange cushion that fell on the ground
+![Real1](https://github.com/Grady10086/DORAEMON/blob/master/demos/real1.mp4)
+
 ## 🚀 Get Started
 
 ### ⚙️ Installation and Setup
